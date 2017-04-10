@@ -10,16 +10,20 @@ class Room():
         '''
         return Room with no occupats
         '''
+        Room.number_of_rooms += 1
         self.__name = name
         self.__max_occupants = max_occupants
         self.__occupants = []
         self.__id = Room.number_of_rooms
-        Room.number_of_rooms += 1
+
 
     @property
     def id(self):
-        return __id
-        
+        '''
+        return id, unique identifier for room
+        '''
+        return self.__id
+
     @property
     def name(self):
         '''
@@ -95,8 +99,9 @@ class Office(Room):
 
     max_occupants = 6
     def __init__(self, name):
-        Room.__init__(self, Office.max_occupants, name)
         Office.number_of_offices += 1
+        Room.__init__(self, Office.max_occupants, name)
+
 
 #create a LivingSpace
 class LivingSpace(Room):
@@ -105,5 +110,81 @@ class LivingSpace(Room):
 
     max_occupants = 4
     def __init__(self, name):
-        Room.__init__(self, LivingSpace.max_occupants, name)
         LivingSpace.number_of_livingspace += 1
+        Room.__init__(self, LivingSpace.max_occupants, name)
+
+
+
+################################################################################
+class Person():
+    #number of Person
+    number_of_person = 0
+
+    def __init__(self, name):
+        Person.number_of_person += 1
+        self.__id = Person.number_of_person
+        self.__name = name
+        self.__office = None
+
+
+    @property
+    def name(self):
+        return self.__name
+    @name.setter
+    def name(self, new_name):
+        self.__name = new_name
+
+    @property
+    def id(self):
+        return self.__id
+
+    @property
+    def office(self):
+        return self.__office
+
+    @office.setter
+    def office(self, office):
+        self.__office = office
+
+    def remove_office(self):
+        self.office = None
+
+    def is_allocated_office(self):
+        return not (not self.office)
+
+
+
+class Fellow(Person):
+    #number of fellows
+    number_of_fellows = 0
+
+    def __init__(self, name, wants_living = False):
+        Fellow.number_of_fellows += 1
+        Person.__init__(self, name)
+        self.__wants_living = wants_living
+        self.__livingspace = None
+
+
+    def is_allocated_living(self):
+        return not not self.__livingspace
+
+    @property
+    def wants_living(self):
+        return self.__wants_living
+    @property
+    def livingspace(self):
+        return self.__livingspace
+    @livingspace.setter
+    def livingspace(self, space):
+        if self.__wants_living:
+            self.__livingspace = space
+        #throw value error
+    def remove_livingspace(self):
+        self.__livingspace = None
+
+class Staff(Person):
+    #number of Staff
+    number_of_staff = 0
+    def __init__(self, name):
+        Staff.number_of_staff += 1
+        Person.__init__(self, name)
