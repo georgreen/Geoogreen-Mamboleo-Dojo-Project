@@ -75,5 +75,24 @@ class test_person(unittest.TestCase):
         self.person1.remove_office()
         self.assertEqual(self.person.office, None)
 
+    def test_is_allocated_office(self):
+        self.assertEqual(self.person1.is_allocated(), False)
 
-    
+    def test_number_of_person(self):
+        self.assertEqual(model.Person.number_person, 11)
+
+    def test_number_of_staff(self):
+        self.assertEqual(model,Staff.number_staff, 2)
+
+    def test_fellow_add_living(self):
+        self.assertEqual(self.fellow2.livingspace, self.livingspace)
+
+    def test_fellow_is_allocated_living(self):
+        self.assetEqual(self.fellow2.is_allocated_living(), True)
+        self.assertNotEqual(self.fellow1.is_allocated_living(), True)
+
+    def test_number_of_fellow(self):
+        self.assertEqual(model.Fellow.number_of_fellows, 2)
+
+    def test_fellow_wants_living(self):
+        self.assertEqual(self.fellow2.wants_living, True)
