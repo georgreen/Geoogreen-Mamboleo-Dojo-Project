@@ -19,4 +19,4 @@ class test_logic(unittest.TestCase):
 		self.assertRaises(TypeError, logic.create_room('wrongname', 'orange'))
 
 	def test_create_room_Noname(self):
-		self.assertEqual(logic.create_room('office', ' '), 'Invalid name ')
+		self.assertEqual(logic.create_room('office', ' '), 'Invalid name')
