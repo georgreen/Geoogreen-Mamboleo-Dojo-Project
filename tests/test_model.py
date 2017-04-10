@@ -43,8 +43,8 @@ class test_person(unittest.TestCase):
         self.person1 = model.Person("person1")
         self.person2 = model.Person("person2")
 
-        self.fellow1 = model.Person("fellow1")
-        self.fellow2 = model.Person("fellow2", True)
+        self.fellow1 = model.Fellow("fellow1")
+        self.fellow2 = model.Fellow("fellow2", True)
 
         self.staff1 = model.Staff("staff1")
         self.staff2 = model.Staff("staff2")
@@ -60,7 +60,7 @@ class test_person(unittest.TestCase):
 
 
     def test_person_instance(self):
-        new_person = Person("new_person")
+        new_person = model.Person("new_person")
         self.assertIsInstance(new_person, model.Person)
 
     def test_add_office(self):
@@ -68,27 +68,27 @@ class test_person(unittest.TestCase):
         self.staff2.office = self.office1
         self.fellow1.office = self.office
 
-        self.assertEqual([self.person1.office, self.fellow.office], [self.office, self.office])
+        self.assertEqual([self.person1.office, self.fellow1.office], [self.office, self.office])
         self.assertEqual(self.staff2.office, self.office1)
 
     def test_remove_office(self):
         self.person1.remove_office()
-        self.assertEqual(self.person.office, None)
+        self.assertEqual(self.person1.office, None)
 
     def test_is_allocated_office(self):
-        self.assertEqual(self.person1.is_allocated(), False)
+        self.assertEqual(self.person1.is_allocated_office(), False)
 
     def test_number_of_person(self):
-        self.assertEqual(model.Person.number_person, 11)
+        self.assertEqual(model.Person.number_of_person, 11)
 
     def test_number_of_staff(self):
-        self.assertEqual(model,Staff.number_staff, 2)
+        self.assertEqual(model.Staff.number_of_staff, 2)
 
     def test_fellow_add_living(self):
         self.assertEqual(self.fellow2.livingspace, self.livingspace)
 
     def test_fellow_is_allocated_living(self):
-        self.assetEqual(self.fellow2.is_allocated_living(), True)
+        self.assertEqual(self.fellow2.is_allocated_living(), True)
         self.assertNotEqual(self.fellow1.is_allocated_living(), True)
 
     def test_number_of_fellow(self):
