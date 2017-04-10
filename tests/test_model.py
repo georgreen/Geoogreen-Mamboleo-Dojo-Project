@@ -5,7 +5,7 @@ from models import model
 
 import unittest
 
-class test_logic_core(unittest.TestCase):
+class test_model(unittest.TestCase):
     def setUp(self):
         self.room = model.Room(20, 'new_room')
         self.room1 = model.Room(6, 'new_room1')
@@ -21,6 +21,8 @@ class test_logic_core(unittest.TestCase):
 
     def test_Room_name(self):
         self.assertEqual('new_room1', self.room1.name)
+        self.room1.name = "changedname"
+        self.assertEqual('changedname', self.room1.name)
 
     def test_office_ocupants(self):
         self.assertEqual(6, self.office.max_occupants)
@@ -31,3 +33,6 @@ class test_logic_core(unittest.TestCase):
     def test_sublclass_Room(self):
         self.assertTrue(issubclass(model.Office, model.Room))
         self.assertTrue(issubclass(model.LivingSpace, model.Room))
+
+    def test_room_current_population(self):
+        self.assertEqual(self.room.current_population, 0)
