@@ -94,6 +94,10 @@ class Room():
 
 #create a Office
 class Office(Room):
+    """
+    input name -> string
+    models Offices space
+    """
     #number of offices a
     number_of_offices = 0
 
@@ -105,6 +109,10 @@ class Office(Room):
 
 #create a LivingSpace
 class LivingSpace(Room):
+    """
+    input : name -> string
+    models a LivingSpace
+    """
     #number of LivingSpaces
     number_of_livingspace = 0
 
@@ -112,6 +120,119 @@ class LivingSpace(Room):
     def __init__(self, name):
         LivingSpace.number_of_livingspace += 1
         Room.__init__(self, LivingSpace.max_occupants, name)
+
+class Dojo():
+    """
+    input name -> string
+    models Dojo facillity
+    """
+    def __init__(self, name):
+        self.__number_rooms = Room.number_of_rooms
+        self.__number_office = Office.number_of_offices
+        self.__number_livingspace = LivingSpace.number_of_livingspace
+        self.__rooms = {'offices' : [], 'livingspace' : []}
+        self.__person = {'fellow' : [], 'staff' : []}
+
+    @property
+    def room(self, room):
+        """
+        returns a copy  all rooms
+        """
+        return self.__rooms['offices'] + self.__rooms['livingspace']
+
+    @property
+    def office(self):
+        """
+        returns a copy of all offices
+        """
+        return self.__rooms['offices'][:]
+    @office.setter
+    def office(self, new_office):
+        """
+        Adds new office to dojo
+        """
+        self.__rooms['offices'].append(new_office)
+    @property
+    def livingspace(self):
+        """
+        returns a copy of all the lving space
+        """
+
+        return self.__rooms['livingspace'][:]
+    @livingspace.setter
+    def livingspace(self, new_livingspace):
+        """
+        Adds new livingspace to the dojo
+        """
+        self.__rooms['livingspace'].append(new_livingspace)
+
+    @property
+    def fellow(self):
+        """
+        returns a copy of all fellows
+        """
+        return self.__person['fellow'][:]
+    @fellow.setter
+    def fellow(self, new_fellow):
+        """
+        Adds a new fellow to dojo
+        """
+        self.__person['fellow'].append(new_fellow)
+    def is_fellow(self, person):
+        """
+        returns true if person is fellow @ Dojo else False
+        """
+        return person in self.__person['fellow']
+
+    @property
+    def staff(self):
+        """
+        returns a copy of the staff
+        """
+        return self.__person['staff'][:]
+    @staff.setter
+    def staff(self, new_staff):
+        """
+        Adds new staff to the Dojo
+        """
+        self.__person['staff'].append(new_staff)
+    def is_staff(self, person):
+        """
+        returns True if person is staff @ Dojo else false
+        """
+        return person in self.__person["staff"]
+
+    def is_person_in_dojo(self, person):
+        """
+        returns True if person in Dojo
+        """
+        pass
+
+    def remove_office(self, old_space):
+        """
+        Removes Office from the Dojo
+        """
+        pass
+
+    def remove_livingspace(self, old_space):
+        """
+        Removes LivingSpace from the Dojo
+        """
+        pass
+
+    def remove_fellow(self, old_fellow):
+        """
+        Remove Fellow fro the Dojo
+        """
+        pass
+    def remove_staff(self, old_staff):
+        """
+        Remove staff from the Dojo
+        """
+        pass
+
+
+
 
 
 
