@@ -67,6 +67,9 @@ class test_person(unittest.TestCase):
     """
     def setUp(self):
         model.Person.number_of_person = 0
+        model.Staff.number_of_staff = 0
+        model.Fellow.number_of_fellows = 0
+
         self.person1 = model.Person("person1")
         self.person2 = model.Person("person2")
 
@@ -107,7 +110,7 @@ class test_person(unittest.TestCase):
         self.assertEqual(self.person1.is_allocated_office(), False)
 
     def test_number_of_person(self):
-        self.assertEqual(model.Person.number_of_person, 11)
+        self.assertEqual(model.Person.number_of_person, 6)
 
     def test_number_of_staff(self):
         self.assertEqual(model.Staff.number_of_staff, 2)
@@ -145,6 +148,7 @@ class test_dojo(unittest.TestCase):
         Each test should be covered atleast once
     """
     def setUp(self):
+        model.Dojo.facillity_names.clear()
         self.dojo1 = model.Dojo("Andela_kenya")
 
         self.room = model.Office("HR")
@@ -182,7 +186,7 @@ class test_dojo(unittest.TestCase):
 
     #test making duplicate dojo
     def test_duplicate_name(self):
-        with self.assertRaises():
+        with self.assertRaises(model.DuplicateError):
             model.Dojo("Andela_kenya")
 
     #covers len(name) > 0

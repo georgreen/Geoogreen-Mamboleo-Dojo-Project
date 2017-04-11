@@ -121,17 +121,50 @@ class LivingSpace(Room):
         LivingSpace.number_of_livingspace += 1
         Room.__init__(self, LivingSpace.max_occupants, name)
 
+
+################################################################################
 class Dojo():
     """
     input name -> string
     models Dojo facillity
     """
+    facillity_names = []
     def __init__(self, name):
-        self.__number_rooms = Room.number_of_rooms
-        self.__number_office = Office.number_of_offices
+        if type(name) != type("str"):
+            raise TypeError
+
+        if name in Dojo.facillity_names:
+            raise DuplicateError
+
+        self.__cleaned_name = self.clean_name(name)
+
+        if not self.__cleaned_name:
+            return 'Invalid name'
+
+
+        self.__number_rooms = 0
+        self.__number_office = 0
         self.__number_livingspace = LivingSpace.number_of_livingspace
         self.__rooms = {'offices' : [], 'livingspace' : []}
         self.__person = {'fellow' : [], 'staff' : []}
+        self.__name = name
+        Dojo.facillity_names.append(self.__cleaned_name)
+
+    #validate name
+    def clean_name(self, name):
+        name_stripped = name.split()
+        cleaned_name = name_stripped[0]
+
+        if cleaned_name:
+            return cleaned_name
+
+
+    @property
+    def name(self):
+        """
+        returns name for Dojo
+        """
+        return self.__name
 
     @property
     def room(self, room):
@@ -202,6 +235,17 @@ class Dojo():
         """
         return person in self.__person["staff"]
 
+    @property
+    def number_of_rooms(self):
+        pass
+    @property
+    def number_of_office(self):
+        pass
+    @property
+    def number_of_livingspace(self):
+        pass
+
+
     def is_person_in_dojo(self, person):
         """
         returns True if person in Dojo
@@ -231,7 +275,8 @@ class Dojo():
         """
         pass
 
-
+class DuplicateError(Exception):
+    pass
 
 
 
