@@ -99,19 +99,48 @@ def choose_office_random():
     """
     choose an office at random
     """
-
     index = random.randrange(len(dojo.office))
-    return dojo.office[index]
+    return index
 
 def choose_living_space_random():
     """
     choose a livingspace at random
     """
     index = random.randrange(len(dojo.livingspace))
-    return dojo.livingspace[index]
+    return index
 
 def helper_addsperson_chooseroom(first_name, second_name, person_type, choice_live = 'N'):
     """
     add a person to dojo and allocates office and [livingspace]
     """
-    pass
+    status_messages = {'status': None, 'message' : []}
+    try:
+        new_person = add_person((first_name, second_name), person_type, choice_live)
+        status_messages['status'] = 'ok'
+
+    except TypeError:
+        return status_messages
+
+    if isinstance(new_person, model.Staff):
+        #add to dojo
+        index = choose_office_random()
+        dojo.add_person_office(index, new_person)
+        dojo.staff = new_person
+    elif isinstance(new_person, model.Fellow):
+        index_livingspace = choose_living_space_random()
+        index_office = choose_office_random()
+        dojo.add_person_office(index_office, new_person)
+        msg = 'Fellow {} Armweek has been successfully added.'.format(new_person.name)'
+        status_messages['message'].append(msg)
+        if new_person.wants_living:
+            dojo.add_fellow_living(index_livingspace, new_person)
+        dojo.fellow = new_person
+
+    elif new_person == 'Invalid name':
+        pass
+    elif new_person == "Invalid choice":
+        pass
+    else:
+        pass
+
+    return status_messages
