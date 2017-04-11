@@ -168,6 +168,8 @@ class test_dojo(unittest.TestCase):
         self.dojo1.office = self.room2
         self.dojo1.livingspace = self.room3
         self.dojo1.livingspace = self.room4
+        self.dojo1.staff = self.person3
+        self.dojo1.staff = self.person4
 
 
     #test badtype as name input
@@ -179,8 +181,12 @@ class test_dojo(unittest.TestCase):
 
     #test non-stanard input on iput -> name
     def test_whitespace_ascii_name(self):
-        self.assertEqual('Invalid name', model.Dojo("  "))
-        self.assertEqual('Invalid name', model.Dojo('@#####'))
+        with self.assertRaises(TypeError):
+             model.Dojo("  ")
+        with self.assertRaises(TypeError):
+             model.Dojo('@#####')
+
+
         self.assertEqual('@#####F', model.Dojo('@#####F').name)
         self.assertEqual("Hello", model.Dojo("Hello      ").name)
 
@@ -194,7 +200,9 @@ class test_dojo(unittest.TestCase):
         self.assertIsInstance( model.Dojo("my_cool_name"), model.Dojo)
     #cover len(name) == 0, name = ''
     def test_name_len_zero(self):
-        self.assertEqual(model.Dojo(''), 'Invalid name')
+        with self.assertRaises(TypeError):
+            model.Dojo('')
+
 
     #cover is_staff
     def test_is_staff(self):
