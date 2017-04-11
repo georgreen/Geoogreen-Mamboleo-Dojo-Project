@@ -139,12 +139,12 @@ class Dojo():
         self.__cleaned_name = self.clean_name(name)
 
         if not self.__cleaned_name:
-            return 'Invalid name'
+            raise TypeError
 
 
         self.__number_rooms = 0
         self.__number_office = 0
-        self.__number_livingspace = LivingSpace.number_of_livingspace
+        self.__number_livingspace = 0
         self.__rooms = {'offices' : [], 'livingspace' : []}
         self.__person = {'fellow' : [], 'staff' : []}
         self.__name = name
@@ -152,8 +152,14 @@ class Dojo():
 
     #validate name
     def clean_name(self, name):
+        clean_name = ''
         name_stripped = name.split()
+        if len(name_stripped) == 0:
+            return ''
+
         cleaned_name = name_stripped[0]
+
+        #check for atleat one letter
 
         if cleaned_name:
             return cleaned_name
@@ -256,25 +262,30 @@ class Dojo():
         """
         Removes Office from the Dojo
         """
-        pass
+        if old_space in self.__rooms['offices']:
+            del self.__rooms['offices'][self.__rooms['offices'].index(old_space)]
 
     def remove_livingspace(self, old_space):
         """
         Removes LivingSpace from the Dojo
         """
-        pass
+        if old_space in self.__rooms['livingspace']:
+            del self.__rooms['livingspace'][self.__rooms['livingspace'].index(old_space)]
 
     def remove_fellow(self, old_fellow):
         """
         Remove Fellow fro the Dojo
         """
-        pass
+        if old_fellow in self.__person['fellow']:
+            del self.__person['fellow'][self.__person['fellow'].index(old_fellow)]
     def remove_staff(self, old_staff):
         """
         Remove staff from the Dojo
         """
-        pass
+        if old_staff in self.__person['staff']:
+            del self.__person['staff'][self.__person['staff'].index(old_staff)]
 
+#exception throw for duplicates insertions
 class DuplicateError(Exception):
     pass
 
