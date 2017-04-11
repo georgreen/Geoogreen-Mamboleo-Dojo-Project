@@ -179,6 +179,7 @@ class Dojo():
         """
         return self.__rooms['offices'] + self.__rooms['livingspace']
 
+
     @property
     def office(self):
         """
