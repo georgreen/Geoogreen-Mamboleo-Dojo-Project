@@ -8,6 +8,7 @@ class App(cmd.Cmd):
     #my shell promt format
     prompt = "INPUT $ > "
     logic.dojo = logic.init_app()
+    ui.print_welcome()
 
     def do_create_room(self, args):
         """
@@ -19,7 +20,7 @@ class App(cmd.Cmd):
 
         try:
             room_information = docopt(self.do_create_room.__doc__, args)
-            print(room_information)
+
         except DocoptExit as e:
             print(e)
             #call view to display Error message
@@ -32,11 +33,12 @@ class App(cmd.Cmd):
                     status_messages.append(logic.helper_create_and_addroom(room_information['<room_type>'], name))
                 except TypeError:
                     #get view for this
-                    status_messages.append("Please type in a proper type")
-                    break
+                    status_messages.append({'status' : 'fail', 'message' : "Room type: [{}] can not be  created!".format(room_information['<room_type>'])})
 
 
         #call ui from views to display our status messages
+        for msg in status_messages:
+            ui.print_message(msg['message'])
 
 if __name__ == '__main__':
     App().cmdloop()
