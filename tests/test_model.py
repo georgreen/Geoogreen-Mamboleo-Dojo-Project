@@ -51,6 +51,20 @@ class test_Rooms(unittest.TestCase):
 
 
 class test_person(unittest.TestCase):
+    """
+    Testing strategy
+    partitioons:
+        @properties
+        name , office
+
+             -> len(name) -> 0 , postive,
+             -> name : whitespace, str(number), asscii charcters
+             -> name : duplicates
+             -->  bad types
+        @methods
+
+        Each test should be covered atleast once
+    """
     def setUp(self):
         model.Person.number_of_person = 0
         self.person1 = model.Person("person1")
@@ -117,7 +131,7 @@ class test_dojo(unittest.TestCase):
     Testing strategy
     partitioons:
         @properties
-        name , office, livingspace, fello, staff
+        name , office, livingspace, fellow, staff
 
              -> len(name) -> 0 , postive,
              -> name : whitespace, str(number), asscii charcters
@@ -142,7 +156,7 @@ class test_dojo(unittest.TestCase):
         self.person1 = model.Fellow("Morris")
         self.person2 = model.Fellow("new_Fellow", True)
 
-        self.person3 = model.staff("Ndiga")
+        self.person3 = model.Staff("Ndiga")
         self.person4 = model.Staff("Someone")
 
         #############update dojo with info###########
@@ -162,16 +176,40 @@ class test_dojo(unittest.TestCase):
     #test non-stanard input on iput -> name
     def test_whitespace_ascii_name(self):
         self.assertEqual('Invalid name', model.Dojo("  "))
-        self.assertEqual('Invalid', model.Dojo('@#####'))
+        self.assertEqual('Invalid name', model.Dojo('@#####'))
         self.assertEqual('@#####F', model.Dojo('@#####F').name)
         self.assertEqual("Hello", model.Dojo("Hello      ").name)
 
     #test making duplicate dojo
     def test_duplicate_name(self):
-        pass
+        with self.assertRaises():
+            model.Dojo("Andela_kenya")
+
     #covers len(name) > 0
     def test_name_len_positive(self):
-        pass
+        self.assertIsInstance( model.Dojo("my_cool_name"), model.Dojo)
     #cover len(name) == 0, name = ''
     def test_name_len_zero(self):
-        pass
+        self.assertEqual(model.Dojo(''), 'Invalid name')
+
+    #cover is_staff
+    def test_is_staff(self):
+        self.assertTrue(self.dojo1.is_staff(self.person3))
+        self.assertFalse(self.dojo1.is_staff(model.Staff("stranger")))
+    #cover_remove_office
+    def test_remove_office(self):
+        self.dojo1.remove_office(self.room)
+        self.assertFalse(self.room in self.dojo1.office)
+
+    #covers remove_livingspace
+    def test_remove_livingspace(self):
+        self.dojo1.remove_livingspace(self.room3)
+        self.assertFalse(self.room3 in self.dojo1.livingspace)
+    #covers remove_staff
+    def test_remove_staff(self):
+        self.dojo1.remove_staff(self.person4)
+        self.assertFalse(self.person4 in self.dojo1.staff)
+    #covers remove_fellow
+    def test_remove_fellow(self):
+        self.dojo1.remove_fellow(self.person2)
+        self.assertFalse(self.person2 in self.dojo1.fellow)
