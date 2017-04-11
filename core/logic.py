@@ -4,11 +4,11 @@ from models import model
 dojo = None
 def init_app():
     #create dojo
-    dojo = model.Dojo("Andela-Kenya")
+    if not dojo:
+        return model.Dojo("Andela-Kenya")
+    else:
+        return dojo
 
-#create a dojo
-if not dojo:
-    dojo = init_app()
 
 
 def create_room(room_type, room_name):
@@ -39,16 +39,24 @@ def create_room(room_type, room_name):
     raise TypeError
 
 def helper_create_and_addroom(room_type, room_name):
+    status_messages = {'status': None, 'message' : None}
     new_room = create_room(room_type, room_name)
-    if isinstance(room, model.Office):
+
+    if isinstance(new_room, model.Office):
         #add to Dojo Office
-        pass
-    elif isinstance(room, model.LivingSpace):
-        #add to Dojo LivingSpace
-        pass
+        dojo.office = new_room
+        status_messages['status'] = 'ok'
+    elif isinstance(new_room, model.LivingSpace):
+        #add to Dojo livingspace
+        dojo.livingspace = new_room
+        status_messages['status'] = 'ok'
     elif new_room == 'Invalid name':
         #give some status messge
-        pass
+        status_messages['status'] = 'Invalid name'
+    else:
+        status_messages['status'] = 'fail'
+
+    return status_messages
 
 
 def add_person():
