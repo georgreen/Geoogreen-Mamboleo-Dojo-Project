@@ -11,32 +11,10 @@ class Room():
         return Room with no occupats
         '''
         Room.number_of_rooms += 1
-        self.__name = name
+        self.name = name
         self.__max_occupants = max_occupants
         self.__occupants = []
         self.__id = Room.number_of_rooms
-
-
-    @property
-    def id(self):
-        '''
-        return id, unique identifier for room
-        '''
-        return self.__id
-
-    @property
-    def name(self):
-        '''
-        property name, return name for room
-        '''
-        return self.__name
-
-    @name.setter
-    def name(self, new_name):
-        '''
-        setter: set's name for room
-        '''
-        self.__name = new_name
 
     @property
     def max_occupants(self):
@@ -53,7 +31,7 @@ class Room():
         '''
         return True if room is full, else false
         '''
-        return len(self.__occupants) == Room.max_occupants
+        return len(self.__occupants) == self.max_occupants
 
     def is_in_room(self, person):
         '''
@@ -147,7 +125,7 @@ class Dojo():
         self.__number_livingspace = 0
         self.__rooms = {'offices' : [], 'livingspace' : []}
         self.__person = {'fellow' : [], 'staff' : []}
-        self.__name = name
+        self.name = self.__cleaned_name
         Dojo.facillity_names.append(self.__cleaned_name)
 
     #validate name
@@ -163,14 +141,6 @@ class Dojo():
 
         if cleaned_name:
             return cleaned_name
-
-
-    @property
-    def name(self):
-        """
-        returns name for Dojo
-        """
-        return self.__name
 
     @property
     def room(self, room):
@@ -242,23 +212,6 @@ class Dojo():
         """
         return person in self.__person["staff"]
 
-    @property
-    def number_of_rooms(self):
-        pass
-    @property
-    def number_of_office(self):
-        pass
-    @property
-    def number_of_livingspace(self):
-        pass
-
-
-    def is_person_in_dojo(self, person):
-        """
-        returns True if person in Dojo
-        """
-        pass
-
     def remove_office(self, old_space):
         """
         Removes Office from the Dojo
@@ -302,8 +255,7 @@ class Person():
         Person.number_of_person += 1
         self.__id = Person.number_of_person
         self.__name = name
-        self.__office = None
-
+        self.office = None
 
     @property
     def name(self):
@@ -315,14 +267,6 @@ class Person():
     @property
     def id(self):
         return self.__id
-
-    @property
-    def office(self):
-        return self.__office
-
-    @office.setter
-    def office(self, office):
-        self.__office = office
 
     def remove_office(self):
         self.office = None
@@ -339,7 +283,7 @@ class Fellow(Person):
     def __init__(self, name, wants_living = False):
         Fellow.number_of_fellows += 1
         Person.__init__(self, name)
-        self.__wants_living = wants_living
+        self.wants_living = wants_living
         self.__livingspace = None
 
 
@@ -347,14 +291,11 @@ class Fellow(Person):
         return not not self.__livingspace
 
     @property
-    def wants_living(self):
-        return self.__wants_living
-    @property
     def livingspace(self):
         return self.__livingspace
     @livingspace.setter
     def livingspace(self, space):
-        if self.__wants_living:
+        if self.wants_living:
             self.__livingspace = space
         #throw value error
     def remove_livingspace(self):
