@@ -53,19 +53,21 @@ class test_add_person(unittest.TestCase):
         Each test should be covered atleast once
     """
     def test_create_person(self):
-        self.assertIsInstance(logic.add_person("new_staff", 'staff'), model.Staff)
-        self.assertIsInstance(logic.add_person("new_fellow", 'fellow'))
-        self.assertIsInstance(logic.add_person("new_fellow_livingspace", "fellow", "Y"))
+        self.assertIsInstance(logic.add_person(("newstaff","name2"), 'staff'), model.Staff)
+        self.assertIsInstance(logic.add_person(("newfellow", "name2"), 'fellow'), model.Fellow)
+        self.assertIsInstance(logic.add_person(("newfellow","livingspace"), "fellow", "Y"), model.Fellow)
 
     def test_wrong_type(self):
         with self.assertRaises(TypeError):
-            logic.add_person("new_staff", [] )
+            logic.add_person(("news","taff"), [] )
         with self.assertRaises(TypeError):
-            logic.add_person("new_fellow", {})
+            logic.add_person(("new ","fellow"), {})
         with self.assertRaises(TypeError):
-            logic.add_person("new_fellow", "fellow", 4)
+            logic.add_person("newfellow", "fellow", 4)
+        with self.assertRaises(TypeError):
+            logic.add_person("newperson", "stafFell")
 
     def test_non_stanard_input(self):
-        self.assertEqual(logic.add_person(" ", "staff"), 'Invalid name')
-        self.assertEqual(logic.add_person("new_name    "), "fellow", "Y")
-        self.assertEqual(logic.add_person(";;;;;;@@@", 'fellow'), "Invalid name")
+        self.assertEqual(logic.add_person((" ", ""), "staff"), 'Invalid name')
+        self.assertEqual(logic.add_person(("newname  ", "name2"), "fellow", "Y").name, "newname name2")
+        self.assertEqual(logic.add_person((";;;;;;@@@", "]]]]]"), 'fellow'), "Invalid name")
