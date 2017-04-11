@@ -1,17 +1,18 @@
 from context import *
 from core import logic
 from docopt import docopt, DocoptExit
+from views import ui
 import cmd
 
 class App(cmd.Cmd):
     #my shell promt format
     prompt = "INPUT $ > "
+    logic.dojo = logic.init_app()
 
     def do_create_room(self, args):
         """
         Usage:
            create_room <room_type> <room_name>...
-
         """
         #alist of all status message form create room
         status_messages = []
@@ -28,16 +29,13 @@ class App(cmd.Cmd):
             for name in room_information['<room_name>']:
                 try:
                     #call helper to create this
-                    pass
+                    status_messages.append(logic.helper_create_and_addroom(room_information['<room_type>'], name))
                 except TypeError:
                     #get view for this
-                    pass
-                if new_room == 'Invalid name':
-                    #get view for this
-                    pass
-                else:
-                    #call add room to dojo
-                    pass
+                    status_messages.append("Please type in a proper type")
+                    break
+
+
         #call ui from views to display our status messages
 
 if __name__ == '__main__':
