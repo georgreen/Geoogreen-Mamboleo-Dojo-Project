@@ -6,7 +6,7 @@ from core import logic
 
 import unittest
 
-class test_logic(unittest.TestCase):
+class test_create_room(unittest.TestCase):
     def setUp(self):
         self.white_char_in_name = logic.create_room('office', "name        ")
         self.white_char_in_typr = logic.create_room('livingspace        ', "name")
@@ -32,3 +32,8 @@ class test_logic(unittest.TestCase):
 
     def test_white_char_in_type(self):
         self.assertIsInstance(self.white_char_in_typr, model.LivingSpace)
+
+
+
+class test_add_person(unittest.TestCase):
+    pass
