@@ -28,3 +28,15 @@ def create_room(room_type, room_name):
     if room_type_cleaned.lower() in datatype:
         return datatype[room_type_cleaned.lower()](room_name_cleaned)
     raise TypeError
+
+def add_person(*args):
+    """
+    input: firstname lastname Fellow/Staff [Y]
+    """
+    pass
+
+def choose_office_random():
+    pass
+
+def choose_living_space_random():
+    pass
