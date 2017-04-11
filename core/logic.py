@@ -46,10 +46,12 @@ def helper_create_and_addroom(room_type, room_name):
         #add to Dojo Office
         dojo.office = new_room
         status_messages['status'] = 'ok'
+        status_messages['message'] = "An office called {} has been successfully created!".format(new_room.name)
     elif isinstance(new_room, model.LivingSpace):
         #add to Dojo livingspace
         dojo.livingspace = new_room
         status_messages['status'] = 'ok'
+        status_messages['message'] = "A LivingSpace called {} has been successfully created!".format(new_room.name)
     elif new_room == 'Invalid name':
         #give some status messge
         status_messages['status'] = 'Invalid name'
