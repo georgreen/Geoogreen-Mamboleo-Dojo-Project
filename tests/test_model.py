@@ -6,6 +6,17 @@ from models import model
 import unittest
 
 class test_Rooms(unittest.TestCase):
+    """
+    Testing strategy
+    partitioons:
+        name -> len(name) -> 0 , postive,
+             -> name : whitespace, str(number), asscii charcters
+             -> name : duplicates
+             -->  bad types
+        max_population -> 0, postive, negative
+                        -> bad type str, dict
+        Each should be covered atleast once
+    """
     def setUp(self):
         self.room = model.Room(20, 'new_room')
         self.room1 = model.Room(6, 'new_room1')
@@ -16,6 +27,7 @@ class test_Rooms(unittest.TestCase):
         self.assertIsInstance(self.room, model.Room)
         self.assertIsInstance(self.room1, model.Room)
 
+    #covers max_population > 0
     def test_Room_max_occupation(self):
         self.assertEqual(20, self.room.max_occupants)
 
@@ -40,11 +52,13 @@ class test_Rooms(unittest.TestCase):
 
 class test_person(unittest.TestCase):
     def setUp(self):
+        model.Person.number_of_person = 0
         self.person1 = model.Person("person1")
         self.person2 = model.Person("person2")
 
         self.fellow1 = model.Fellow("fellow1")
         self.fellow2 = model.Fellow("fellow2", True)
+
 
         self.staff1 = model.Staff("staff1")
         self.staff2 = model.Staff("staff2")
@@ -96,3 +110,68 @@ class test_person(unittest.TestCase):
 
     def test_fellow_wants_living(self):
         self.assertEqual(self.fellow2.wants_living, True)
+
+
+class test_dojo(unittest.TestCase):
+    """
+    Testing strategy
+    partitioons:
+        @properties
+        name , office, livingspace, fello, staff
+
+             -> len(name) -> 0 , postive,
+             -> name : whitespace, str(number), asscii charcters
+             -> name : duplicates
+             -->  bad types
+        @methods
+        is_staff, remove_office, remove_livingspace, remove_fellow, remove_staff
+        input : -> data bot in dojo, data in dojo,
+               ->   bad types, double
+
+        Each test should be covered atleast once
+    """
+    def setUp(self):
+        self.dojo1 = model.Dojo("Andela_kenya")
+
+        self.room = model.Office("HR")
+        self.room2 = model.Office("IT")
+
+        self.room3 = model.LivingSpace("Complex_A")
+        self.room4 = model.LivingSpace("Complex_B")
+
+        self.person1 = model.Fellow("Morris")
+        self.person2 = model.Fellow("new_Fellow", True)
+
+        self.person3 = model.staff("Ndiga")
+        self.person4 = model.Staff("Someone")
+
+        #############update dojo with info###########
+        self.dojo1.office = self.room
+        self.dojo1.office = self.room2
+        self.dojo1.livingspace = self.room3
+        self.dojo1.livingspace = self.room4
+
+
+    #test badtype as name input
+    def test_badtypes_name(self):
+        with self.assertRaises(TypeError):
+            model.Dojo([])
+        with self.assertRaises(TypeError):
+            model.Dojo(1)
+
+    #test non-stanard input on iput -> name
+    def test_whitespace_ascii_name(self):
+        self.assertEqual('Invalid name', model.Dojo("  "))
+        self.assertEqual('Invalid', model.Dojo('@#####'))
+        self.assertEqual('@#####F', model.Dojo('@#####F').name)
+        self.assertEqual("Hello", model.Dojo("Hello      ").name)
+
+    #test making duplicate dojo
+    def test_duplicate_name(self):
+        pass
+    #covers len(name) > 0
+    def test_name_len_positive(self):
+        pass
+    #cover len(name) == 0, name = ''
+    def test_name_len_zero(self):
+        pass
