@@ -9,3 +9,7 @@ def print_message(msg):
     print message on consle
     '''
     print(msg)
+
+def print_room_members(occupants):
+    for member in occupants:
+        print(member.name, end = ', ')
