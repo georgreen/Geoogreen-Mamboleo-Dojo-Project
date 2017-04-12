@@ -139,7 +139,13 @@ class App(cmd.Cmd):
             pass
         else:
             unallocated_person = logic.list_unallocated(App.dojo)
-            ui.print_message("NOT YET IMPLEMENTED!")
+            ui.print_message("*" * 40)
+            ui.print_message('      LIST OF UNALLOCATED PEOPLE')
+            ui.print_message("*" * 40)
+            if len(unallocated_person) > 0:
+                ui.print_not_allocated(unallocated_person)
+            else:
+                ui.print_message("Every one is allocated ;-)")
 
 
 
