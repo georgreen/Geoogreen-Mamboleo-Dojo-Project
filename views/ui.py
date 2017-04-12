@@ -16,3 +16,6 @@ def print_room_members(occupants):
 
     print()
     print()
+def print_not_allocated(person):
+    for member in person:
+        print(member.name)
