@@ -40,6 +40,8 @@ class App(cmd.Cmd):
         #call ui from views to display our status messages
         for msg in status_messages:
             ui.print_message(msg['message'])
+
+
     def do_add_person(self, args):
         """
         Usage:
@@ -64,6 +66,7 @@ class App(cmd.Cmd):
         for messages in status_messages:
             for message in messages['message']:
                 ui.print_message(message)
+                
 
 
 
