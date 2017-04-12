@@ -119,37 +119,40 @@ class Dojo():
         if not self.__cleaned_name:
             raise TypeError
 
-
         self.__number_rooms = 0
         self.__number_office = 0
         self.__number_livingspace = 0
         self.__rooms = {'offices' : [], 'livingspace' : []}
         self.__person = {'fellow' : [], 'staff' : []}
         self.name = self.__cleaned_name
+        self.office = self.__rooms['offices']
         Dojo.facillity_names.append(self.__cleaned_name)
 
     #validate name
     def clean_name(self, name):
-        clean_name = ''
+        clean_name = ""
         name_stripped = name.split()
         if len(name_stripped) == 0:
             return ''
-
         cleaned_name = name_stripped[0]
-
         #check for atleat one letter
-
         if cleaned_name:
             return cleaned_name
 
-    @property
-    def room(self, room):
-        """
-        returns a copy  all rooms
-        """
-        return self.__rooms['offices'] + self.__rooms['livingspace']
+    def add_person_office(self,index, staff):
+        self.__rooms['offices'][index].add_occupant(staff)
+
+    def add_fellow_living(self,index, fellow):
+        self.__rooms['livingspace'][index].add_occupant(fellow)
+
+    def get_office_at_index(self, index):
+        return self.__rooms['offices'][index]
+
+    def get_livingspace_at_index(self, index):
+        return self.__rooms['livingspace'][index]
 
 
+    ###########################################################################
     @property
     def office(self):
         """
