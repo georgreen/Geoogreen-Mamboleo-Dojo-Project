@@ -5,7 +5,7 @@ class Room():
     '''
     #keep track of all rooms created
     number_of_rooms = 0
-
+    takken_names = []
     def __init__(self, max_occupants, name):
         '''
         return Room with no occupats
@@ -13,8 +13,9 @@ class Room():
         Room.number_of_rooms += 1
         self.name = name
         self.__max_occupants = max_occupants
-        self.__occupants = []
+        self.occupants = []
         self.__id = Room.number_of_rooms
+        Room.takken_names.append(name)
 
     @property
     def max_occupants(self):
@@ -25,42 +26,40 @@ class Room():
         '''
         return number of ppl in room
         '''
-        return len(self.__occupants)
+        return len(self.occupants)
 
     def is_full(self):
         '''
         return True if room is full, else false
         '''
-        return len(self.__occupants) == self.max_occupants
+        return len(self.occupants) == self.max_occupants
 
     def is_in_room(self, person):
         '''
         returns true if person in room_name
         '''
-        return person in self.__occupants
+        return person in self.occupants
 
     def add_occupant(self, person):
         '''
         adds person to room_name
         '''
-        self.__occupants.append(person)
+        self.occupants.append(person)
 
     def remove_occupant(self, person):
         '''
         removes person from room
         '''
         if self.is_in_room(person):
-            del self.__occupants[self.__occupants.index(person)]
-        #raise some error
+            del self.occupants[self.occupants.index(person)]
+            return True
+        return False
     def get_occupants(self):
         '''
         returns a generator with all occupants
         '''
-        occupants = self.__occupants[:]
-        def occupants():
-            for person in occupants:
-                yield person
-        return occupants()
+        return self.occupants[:]
+
 
 
 
@@ -113,8 +112,6 @@ class Dojo():
         if not self.__cleaned_name:
             raise TypeError
 
-        self.__number_rooms = 0
-        self.__number_office = 0
         self.__number_livingspace = 0
         self.__rooms = {'offices' : [], 'livingspace' : []}
         self.__person = {'fellow' : [], 'staff' : []}
