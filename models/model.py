@@ -100,13 +100,9 @@ class Dojo():
     def __init__(self, name):
         if type(name) != type("str"):
             raise TypeError
-
         if name in Dojo.facillity_names:
             raise DuplicateError
-            pass
-
         self.__cleaned_name = self.clean_name(name)
-
         if not self.__cleaned_name:
             raise TypeError
 
@@ -118,6 +114,7 @@ class Dojo():
         self.livingspace = self.rooms['livingspace']
         self.fellow = self.person['fellow']
         self.staff = self.person['staff']
+        self.takken_names = set()
         Dojo.facillity_names.append(self.__cleaned_name)
 
     #validate name
@@ -146,10 +143,12 @@ class Dojo():
     def add_office(self, new_office):
         #refactor office
         self.rooms['offices'].append(new_office)
+        self.takken_names.add(new_office.name)
 
     def add_livingspace(self, new_livingspace):
         #refactor settet livingspace
         self.rooms['livingspace'].append(new_livingspace)
+        self.takken_names.add(new_livingspace.name)
 
     def add_staff(self, new_staff):
         #refactor staff setter
@@ -211,28 +210,21 @@ class Person():
 
     def __init__(self, name):
         Person.number_of_person += 1
-        self.__id = id(self)
-        self.__name = name
+        self.__id = Person.number_of_person
+        self.name = name
         self.office = None
 
     @property
-    def name(self):
-        return self.__name
-    @name.setter
-    def name(self, new_name):
-        self.__name = new_name
-
-    @property
     def id(self):
+        '''
+        person's Id based off number of ppl created
+        '''
         return self.__id
-
     def remove_office(self):
         self.office = None
 
     def is_allocated_office(self):
         return  not (not self.office)
-
-
 
 class Fellow(Person):
     #number of fellows
