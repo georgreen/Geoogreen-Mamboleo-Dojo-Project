@@ -8,25 +8,26 @@ from core import logic
 import unittest
 
 class test_create_room(unittest.TestCase):
+    dojo = model.Dojo("Andela-Kenya")
     def setUp(self):
-        self.white_char_in_name = logic.create_room('office', "name        ")
-        self.white_char_in_typr = logic.create_room('livingspace        ', "name")
+        self.white_char_in_name = logic.create_room('office', "name        ", test_create_room.dojo)
+        self.white_char_in_typr = logic.create_room('livingspace        ', "name",test_create_room.dojo)
 
 
     def test_create_room_office(self):
-        new_office = logic.create_room('office', 'orange')
+        new_office = logic.create_room('office', 'orange', test_create_room.dojo)
         self.assertIsInstance(new_office, model.Office)
 
     def test_create_room_livingspace(self):
-        new_livingspace = logic.create_room('livingspace', 'manjaro')
+        new_livingspace = logic.create_room('livingspace', 'manjaro', test_create_room.dojo)
         self.assertIsInstance(new_livingspace, model.LivingSpace)
 
     def test_create_room_Wrongtype(self):
         with self.assertRaises(TypeError):
-            logic.create_room('wrongname', 'gooodname')
+            logic.create_room('wrongname', 'gooodname', test_create_room.dojo)
 
     def test_create_room_Noname(self):
-        self.assertEqual(logic.create_room('office', ' '), 'Invalid name')
+        self.assertEqual(logic.create_room('office', ' ', test_create_room.dojo), 'Invalid name')
 
     def test_white_char_in_name(self):
         self.assertEqual(self.white_char_in_name.name, "name")
