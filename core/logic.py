@@ -36,12 +36,12 @@ def helper_create_and_addroom(dojo, room_type, room_name):
 
     if isinstance(new_room, model.Office):
         #add to Dojo Office
-        dojo.office = new_room
+        dojo.add_office(new_room)
         status_messages['status'] = 'ok'
         status_messages['message'] = "An office called {} has been successfully created!".format(new_room.name)
     elif isinstance(new_room, model.LivingSpace):
         #add to Dojo livingspace
-        dojo.livingspac = new_room
+        dojo.add_livingspace(new_room)
         status_messages['status'] = 'ok'
         status_messages['message'] = "A LivingSpace called {} has been successfully created!".format(new_room.name)
     else:
@@ -90,7 +90,7 @@ def choose_office_random(dojo):
     choose an office at random
     """
     index = random.randrange(len(dojo.office))
-    return index 
+    return index
 
 def choose_living_space_random(dojo):
     """
@@ -104,7 +104,6 @@ def helper_addsperson_chooseroom(dojo, first_name, second_name, person_type, cho
     add a person to dojo and allocates office and [livingspace]
     """
     status_messages = {'status': None, 'message' : []}
-    print()
     if not choice_live :
         choice_live = 'N'
     try:
@@ -121,7 +120,7 @@ def helper_addsperson_chooseroom(dojo, first_name, second_name, person_type, cho
         #add to dojo
         index_office = choose_office_random(dojo)
         dojo.add_person_office(index_office, new_person)
-        dojo.staff = new_person
+        dojo.add_staff(new_person)
         office = dojo.get_office_at_index(index_office)
         msg = "{} has been allocated the office {}".format(new_person.name, office.name)
         status_messages['message'].append(msg)
@@ -130,7 +129,7 @@ def helper_addsperson_chooseroom(dojo, first_name, second_name, person_type, cho
         index_livingspace = choose_living_space_random(dojo)
         index_office = choose_office_random(dojo)
         dojo.add_person_office(index_office, new_person)
-        dojo.fellow = new_person
+        dojo.add_fellow(new_person)
         office = dojo.get_office_at_index(index_office)
         msg = "{} has been allocated the office {}".format(new_person.name, office.name)
         status_messages['message'].append(msg)
