@@ -3,14 +3,15 @@ from core import logic
 from docopt import docopt, DocoptExit
 from views import ui
 import cmd
+from models import model
 
 class App(cmd.Cmd):
     #my shell promt format
     prompt = "INPUT $ > "
-    logic.dojo = logic.init_app()
+    dojo = model.Dojo("Andela-Kenya")
     ui.print_welcome()
 
-    def do_create_room(self, args):
+    def do_create_room(self,args):
         """
         Usage:
            create_room <room_type> <room_name>...
@@ -22,7 +23,7 @@ class App(cmd.Cmd):
             room_information = docopt(self.do_create_room.__doc__, args)
 
         except DocoptExit as e:
-            print(e)
+            ui.print_message(e)
             #call view to display Error message
         except KeyboardInterrupt:
             pass
@@ -30,7 +31,7 @@ class App(cmd.Cmd):
             for name in room_information['<room_name>']:
                 try:
                     #call helper to create this
-                    status_messages.append(logic.helper_create_and_addroom(room_information['<room_type>'], name))
+                    status_messages.append(logic.helper_create_and_addroom(App.dojo,room_information['<room_type>'], name))
                 except TypeError:
                     #get view for this
                     status_messages.append({'status' : 'fail', 'message' : "Room type: [{}] can not be  created!".format(room_information['<room_type>'])})
@@ -39,6 +40,32 @@ class App(cmd.Cmd):
         #call ui from views to display our status messages
         for msg in status_messages:
             ui.print_message(msg['message'])
+    def do_add_person(self, args):
+        """
+        Usage:
+            add_person <firstname> <secondname> <person_type> [<choice>]
+        """
+        status_messages = []
+        try:
+            person_information = docopt(self.do_add_person.__doc__, args)
+
+        except DocoptExit as e:
+            ui.print_message(e)
+        except KeyboardInterrupt:
+            pass
+        else:
+            firstname = person_information['<firstname>']
+            secondname = person_information['<secondname>']
+            wants_room = person_information['<choice>']
+            person_type = person_information['<person_type>']
+
+            status_messages.append(logic.helper_addsperson_chooseroom(App.dojo,firstname, secondname, person_type, wants_room))
+
+        for messages in status_messages:
+            for message in messages['message']:
+                ui.print_message(message)
+
+
 
 if __name__ == '__main__':
     App().cmdloop()
