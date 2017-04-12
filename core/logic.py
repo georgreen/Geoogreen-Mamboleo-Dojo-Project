@@ -2,15 +2,6 @@ from context import models
 from models import model
 import random
 
-dojo = None
-def init_app():
-    #create dojo
-    if not dojo:
-        return model.Dojo("Andela-Kenya")
-    else:
-        return dojo
-
-
 
 def create_room(room_type, room_name):
     """
@@ -39,7 +30,7 @@ def create_room(room_type, room_name):
         return datatype[room_type_cleaned.lower()](room_name_cleaned)
     raise TypeError
 
-def helper_create_and_addroom(room_type, room_name):
+def helper_create_and_addroom(dojo, room_type, room_name):
     status_messages = {'status': None, 'message' : None}
     new_room = create_room(room_type, room_name)
 
@@ -50,7 +41,7 @@ def helper_create_and_addroom(room_type, room_name):
         status_messages['message'] = "An office called {} has been successfully created!".format(new_room.name)
     elif isinstance(new_room, model.LivingSpace):
         #add to Dojo livingspace
-        dojo.livingspace = new_room
+        dojo.livingspac = new_room
         status_messages['status'] = 'ok'
         status_messages['message'] = "A LivingSpace called {} has been successfully created!".format(new_room.name)
     else:
@@ -71,7 +62,6 @@ def add_person(names, person_type, wants_livingspace = 'N'):
 
     #validate person_type
     person_type = person_type.lower().strip()
-    print(person_type)
 
     if person_type not in ["fellow", "staff"]:
         raise TypeError
@@ -95,25 +85,28 @@ def add_person(names, person_type, wants_livingspace = 'N'):
     return model.Fellow(name, choice)
 
 
-def choose_office_random():
+def choose_office_random(dojo):
     """
     choose an office at random
     """
     index = random.randrange(len(dojo.office))
-    return index
+    return index 
 
-def choose_living_space_random():
+def choose_living_space_random(dojo):
     """
     choose a livingspace at random
     """
     index = random.randrange(len(dojo.livingspace))
     return index
 
-def helper_addsperson_chooseroom(first_name, second_name, person_type, choice_live = 'N'):
+def helper_addsperson_chooseroom(dojo, first_name, second_name, person_type, choice_live = 'N'):
     """
     add a person to dojo and allocates office and [livingspace]
     """
     status_messages = {'status': None, 'message' : []}
+    print()
+    if not choice_live :
+        choice_live = 'N'
     try:
         new_person = add_person((first_name, second_name), person_type, choice_live)
         status_messages['status'] = 'ok'
@@ -126,35 +119,38 @@ def helper_addsperson_chooseroom(first_name, second_name, person_type, choice_li
 
     if isinstance(new_person, model.Staff):
         #add to dojo
-        index = choose_office_random()
-        dojo.add_person_office(index, new_person)
+        index_office = choose_office_random(dojo)
+        dojo.add_person_office(index_office, new_person)
         dojo.staff = new_person
-        office = dojo.get_office_at_index(index)
+        office = dojo.get_office_at_index(index_office)
         msg = "{} has been allocated the office {}".format(new_person.name, office.name)
         status_messages['message'].append(msg)
+
     elif isinstance(new_person, model.Fellow):
-        index_livingspace = choose_living_space_random()
-        index_office = choose_office_random()
+        index_livingspace = choose_living_space_random(dojo)
+        index_office = choose_office_random(dojo)
         dojo.add_person_office(index_office, new_person)
         dojo.fellow = new_person
-        office = dojo.get_office_at_index(index)
+        office = dojo.get_office_at_index(index_office)
         msg = "{} has been allocated the office {}".format(new_person.name, office.name)
         status_messages['message'].append(msg)
+
         if new_person.wants_living:
             dojo.add_fellow_living(index_livingspace, new_person)
-            livingspace = dojo.get_livingspace_at_index(index)
+            livingspace = dojo.get_livingspace_at_index(index_livingspace)
             msg = "{} has been allocated the livingspace {} ".format(new_person.name, livingspace.name)
             status_messages['message'].append(msg)
+
     elif new_person == 'Invalid name':
         status_messages['status'] = 'Invalid name'
-        msg = ""
+        msg =  "{} {} has not been  added  ".format(person_type, name)
         status_messages['message'] = []
+
     elif new_person == "Invalid choice":
         status_messages['status'] = 'Invalid choice'
-        msg = ""
+        msg = "{} {} has not been  added  ".format(person_type, name)
+        msg_not_allocated = "{} {} has not been  allocated living space  ".format(person_type, name)
         status_messages['message'] = [msg]
-    else:
-        msg = ""
-        status_messages['message'] = [msg]
+
 
     return status_messages
