@@ -43,13 +43,7 @@ class Room():
         '''
         adds person to room_name
         '''
-        if self.current_population == self.max_occupants:
-            pass
-            #raise full error
-        if not self.is_in_room(person):
-            self.__occupants.append(person)
-
-        #raise some error
+        self.__occupants.append(person)
 
     def remove_occupant(self, person):
         '''
@@ -126,6 +120,9 @@ class Dojo():
         self.__person = {'fellow' : [], 'staff' : []}
         self.name = self.__cleaned_name
         self.office = self.__rooms['offices']
+        self.livingspace = self.__rooms['livingspace']
+        self.fellow = self.__person['fellow']
+        self.staff = self.__person['staff']
         Dojo.facillity_names.append(self.__cleaned_name)
 
     #validate name
@@ -151,64 +148,27 @@ class Dojo():
     def get_livingspace_at_index(self, index):
         return self.__rooms['livingspace'][index]
 
-
-    ###########################################################################
-    @property
-    def office(self):
-        """
-        returns a copy of all offices
-        """
-        return self.__rooms['offices'][:]
-    @office.setter
-    def office(self, new_office):
-        """
-        Adds new office to dojo
-        """
+    def add_office(self, new_office):
+        #refactor office
         self.__rooms['offices'].append(new_office)
-    @property
-    def livingspace(self):
-        """
-        returns a copy of all the lving space
-        """
 
-        return self.__rooms['livingspace'][:]
-    @livingspace.setter
-    def livingspace(self, new_livingspace):
-        """
-        Adds new livingspace to the dojo
-        """
+    def add_livingspace(self, new_livingspace):
+        #refactor settet livingspace
         self.__rooms['livingspace'].append(new_livingspace)
 
-    @property
-    def fellow(self):
-        """
-        returns a copy of all fellows
-        """
-        return self.__person['fellow'][:]
-    @fellow.setter
-    def fellow(self, new_fellow):
-        """
-        Adds a new fellow to dojo
-        """
+    def add_staff(self, new_staff):
+        #refactor staff setter
+        self.__person['staff'].append(new_staff)
+    def add_fellow(self, new_fellow):
+        #refactor fellow setter
         self.__person['fellow'].append(new_fellow)
+
     def is_fellow(self, person):
         """
         returns true if person is fellow @ Dojo else False
         """
         return person in self.__person['fellow']
 
-    @property
-    def staff(self):
-        """
-        returns a copy of the staff
-        """
-        return self.__person['staff'][:]
-    @staff.setter
-    def staff(self, new_staff):
-        """
-        Adds new staff to the Dojo
-        """
-        self.__person['staff'].append(new_staff)
     def is_staff(self, person):
         """
         returns True if person is staff @ Dojo else false
