@@ -13,3 +13,6 @@ def print_message(msg):
 def print_room_members(occupants):
     for member in occupants:
         print(member.name, end = ', ')
+
+    print()
+    print()
