@@ -12,14 +12,11 @@ class Room():
         '''
         Room.number_of_rooms += 1
         self.name = name
-        self.__max_occupants = max_occupants
+        self.max_occupants = max_occupants
         self.occupants = []
         self.__id = Room.number_of_rooms
         Room.takken_names.append(name)
 
-    @property
-    def max_occupants(self):
-        return self.__max_occupants
 
     @property
     def current_population(self):
@@ -32,7 +29,7 @@ class Room():
         '''
         return True if room is full, else false
         '''
-        return len(self.occupants) == self.max_occupants
+        return self.current_population == self.max_occupants
 
     def is_in_room(self, person):
         '''
