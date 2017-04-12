@@ -167,6 +167,34 @@ class App(cmd.Cmd):
                 else:
                     ui.print_message("Every one is allocated ;-)")
 
+    def do_reallocate_person(self, args):
+        """
+        Usage:
+            reallocate_person <person_identifier> <new_room_name>
+        """
+        try:
+            reallocate_information = docopt(self.do_reallocate_person.__doc__, args)
+
+        except DocoptExit as e:
+            ui.print_message(e)
+            #call view to display Error message
+        except KeyboardInterrupt:
+            pass
+
+    def do_load_people(self, args):
+        """
+        Usage:
+            reallocate_person <person_identifier> <new_room_name>
+        """
+        try:
+            reallocate_information = docopt(self.do_reallocate_person.__doc__, args)
+
+        except DocoptExit as e:
+            ui.print_message(e)
+            #call view to display Error message
+        except KeyboardInterrupt:
+            pass
+
 
 
 if __name__ == '__main__':
