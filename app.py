@@ -70,6 +70,57 @@ class App(cmd.Cmd):
             for message in messages['message']:
                 ui.print_message(message)
 
+    def do_print_room(self, args):
+        """
+        Usage:
+            prtint_room <room_name>
+        """
+        try:
+            print_option = docopt(self.do_print_room.__doc__, args)
+
+        except DocoptExit as e:
+            ui.print_message(e)
+            #call view to display Error message
+        except KeyboardInterrupt:
+            pass
+        else:
+            ui.print_message("NOT YET IMPLEMENTED!")
+
+
+    def do_print_allocations(self, args):
+        """
+        Usage:
+            print_allocations [-o=filename]​
+        """
+        try:
+            print_option = docopt(self.do_print_allocations.__doc__, args)
+
+        except DocoptExit as e:
+            ui.print_message(e)
+            #call view to display Error message
+        except KeyboardInterrupt:
+            pass
+        else:
+            ui.print_message("NOT YET IMPLEMENTED!")
+
+
+
+    def do_print_unallocated(self, args):
+        """
+        Usage:
+            print_unallocated [-o=filename]
+        """
+        try:
+            print_option = docopt(self.do_print_unallocated.__doc__, args)
+
+        except DocoptExit as e:
+            ui.print_message(e)
+            #call view to display Error message
+        except KeyboardInterrupt:
+            pass
+        else:
+            ui.print_message("NOT YET IMPLEMENTED!")
+
 
 
 if __name__ == '__main__':
