@@ -88,7 +88,6 @@ class App(cmd.Cmd):
             try:
                 occupants = logic.people_inroom(App.dojo, room_name['<room_name>'])
                 if len(occupants) > 0:
-                    print(occupants)
                     ui.print_room_members(occupants)
                 else:
                     ui.print_message("Empty room :-( ")
@@ -100,24 +99,35 @@ class App(cmd.Cmd):
     def do_print_allocations(self, args):
         """
         Usage:
-            print_allocations [-o=filename]​
+            print_allocations [<-o=FILE>]
         """
         try:
-            print_option = docopt(self.do_print_allocations.__doc__, args)
+            file_name = docopt(self.do_print_allocations.__doc__, args)
+
         except DocoptExit as e:
             ui.print_message(e)
-
         except KeyboardInterrupt:
             pass
         else:
-            ui.print_message("NOT YET IMPLEMENTED!")
+            #ui.print_message("NOT YET IMPLEMENTED!")
+            allocations = logic.dict_allocations(App.dojo, file_name['<-o=FILE>'])
+            #print(allocations)
+            for room_name in allocations:
+                ui.print_message("Room :" + room_name)
+                ui.print_message("_" * len("Room :" + room_name))
+
+                if len(allocations[room_name]) > 0:
+                    ui.print_room_members(allocations[room_name])
+                else:
+                    ui.print_message("Empty room :-( ")
+
 
 
 
     def do_print_unallocated(self, args):
         """
         Usage:
-            print_unallocated [-o=filename]
+            print_unallocations [<-o=FILE>]
         """
         try:
             print_option = docopt(self.do_print_unallocated.__doc__, args)
@@ -128,6 +138,7 @@ class App(cmd.Cmd):
         except KeyboardInterrupt:
             pass
         else:
+            unallocated_person = logic.list_unallocated(App.dojo)
             ui.print_message("NOT YET IMPLEMENTED!")
 
 
