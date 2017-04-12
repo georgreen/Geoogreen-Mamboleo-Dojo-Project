@@ -11,6 +11,9 @@ class App(cmd.Cmd):
     dojo = model.Dojo("Andela-Kenya")
     ui.print_welcome()
 
+    def docopt_helper(function_name):
+        pass
+
     def do_create_room(self,args):
         """
         Usage:
@@ -66,7 +69,6 @@ class App(cmd.Cmd):
         for messages in status_messages:
             for message in messages['message']:
                 ui.print_message(message)
-                
 
 
 
