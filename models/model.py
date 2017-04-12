@@ -103,6 +103,7 @@ class Dojo():
 
         if name in Dojo.facillity_names:
             raise DuplicateError
+            pass
 
         self.__cleaned_name = self.clean_name(name)
 
@@ -110,13 +111,13 @@ class Dojo():
             raise TypeError
 
         self.__number_livingspace = 0
-        self.__rooms = {'offices' : [], 'livingspace' : []}
-        self.__person = {'fellow' : [], 'staff' : []}
+        self.rooms = {'offices' : [], 'livingspace' : []}
+        self.person = {'fellow' : [], 'staff' : []}
         self.name = self.__cleaned_name
-        self.office = self.__rooms['offices']
-        self.livingspace = self.__rooms['livingspace']
-        self.fellow = self.__person['fellow']
-        self.staff = self.__person['staff']
+        self.office = self.rooms['offices']
+        self.livingspace = self.rooms['livingspace']
+        self.fellow = self.person['fellow']
+        self.staff = self.person['staff']
         Dojo.facillity_names.append(self.__cleaned_name)
 
     #validate name
@@ -131,70 +132,70 @@ class Dojo():
             return cleaned_name
 
     def add_person_office(self,index, staff):
-        self.__rooms['offices'][index].add_occupant(staff)
+        self.rooms['offices'][index].add_occupant(staff)
 
     def add_fellow_living(self,index, fellow):
-        self.__rooms['livingspace'][index].add_occupant(fellow)
+        self.rooms['livingspace'][index].add_occupant(fellow)
 
     def get_office_at_index(self, index):
-        return self.__rooms['offices'][index]
+        return self.rooms['offices'][index]
 
     def get_livingspace_at_index(self, index):
-        return self.__rooms['livingspace'][index]
+        return self.rooms['livingspace'][index]
 
     def add_office(self, new_office):
         #refactor office
-        self.__rooms['offices'].append(new_office)
+        self.rooms['offices'].append(new_office)
 
     def add_livingspace(self, new_livingspace):
         #refactor settet livingspace
-        self.__rooms['livingspace'].append(new_livingspace)
+        self.rooms['livingspace'].append(new_livingspace)
 
     def add_staff(self, new_staff):
         #refactor staff setter
-        self.__person['staff'].append(new_staff)
+        self.person['staff'].append(new_staff)
     def add_fellow(self, new_fellow):
         #refactor fellow setter
-        self.__person['fellow'].append(new_fellow)
+        self.person['fellow'].append(new_fellow)
 
     def is_fellow(self, person):
         """
         returns true if person is fellow @ Dojo else False
         """
-        return person in self.__person['fellow']
+        return person in self.person['fellow']
 
     def is_staff(self, person):
         """
         returns True if person is staff @ Dojo else false
         """
-        return person in self.__person["staff"]
+        return person in self.person["staff"]
 
     def remove_office(self, old_space):
         """
         Removes Office from the Dojo
         """
-        if old_space in self.__rooms['offices']:
-            del self.__rooms['offices'][self.__rooms['offices'].index(old_space)]
+        if old_space in self.rooms['offices']:
+            del self.rooms['offices'][self.rooms['offices'].index(old_space)]
 
     def remove_livingspace(self, old_space):
         """
         Removes LivingSpace from the Dojo
         """
-        if old_space in self.__rooms['livingspace']:
-            del self.__rooms['livingspace'][self.__rooms['livingspace'].index(old_space)]
+        if old_space in self.rooms['livingspace']:
+            del self.rooms['livingspace'][self.rooms['livingspace'].index(old_space)]
 
     def remove_fellow(self, old_fellow):
         """
         Remove Fellow fro the Dojo
         """
-        if old_fellow in self.__person['fellow']:
-            del self.__person['fellow'][self.__person['fellow'].index(old_fellow)]
+        if old_fellow in self.person['fellow']:
+            del self.person['fellow'][self.person['fellow'].index(old_fellow)]
     def remove_staff(self, old_staff):
         """
         Remove staff from the Dojo
         """
-        if old_staff in self.__person['staff']:
-            del self.__person['staff'][self.__person['staff'].index(old_staff)]
+        if old_staff in self.person['staff']:
+            del self.person['staff'][self.person['staff'].index(old_staff)]
 
 #exception throw for duplicates insertions
 class DuplicateError(Exception):
@@ -210,7 +211,7 @@ class Person():
 
     def __init__(self, name):
         Person.number_of_person += 1
-        self.__id = Person.number_of_person
+        self.__id = id(self)
         self.__name = name
         self.office = None
 
@@ -229,7 +230,7 @@ class Person():
         self.office = None
 
     def is_allocated_office(self):
-        return not (not self.office)
+        return  not (not self.office)
 
 
 
@@ -241,22 +242,18 @@ class Fellow(Person):
         Fellow.number_of_fellows += 1
         Person.__init__(self, name)
         self.wants_living = wants_living
-        self.__livingspace = None
+        self.livingspace = None
 
 
     def is_allocated_living(self):
-        return not not self.__livingspace
+        return not (not self.livingspace)
 
-    @property
-    def livingspace(self):
-        return self.__livingspace
-    @livingspace.setter
-    def livingspace(self, space):
+    def set_livingspace(self, space):
         if self.wants_living:
-            self.__livingspace = space
-        #throw value error
+            self.livingspace = space
+
     def remove_livingspace(self):
-        self.__livingspace = None
+        self.livingspace = None
 
 class Staff(Person):
     #number of Staff
