@@ -120,6 +120,7 @@ def helper_addsperson_chooseroom(dojo, first_name, second_name, person_type, cho
     try:
         new_person = add_person((first_name, second_name), person_type, choice_live)
         status_messages['status'] = 'ok'
+        new_person.office = None
         msg = "{} {} {} has been successfully added.".format(person_type, first_name, second_name)
         status_messages['message'].append(msg)
     except TypeError:
@@ -222,4 +223,14 @@ def list_unallocated(dojo, file_name = ''):
     returns a list of unallocated people to the screen
     if file_name is specified values are saved txt
     """
-    pass
+    unallocated = []
+    person = dojo.person
+
+    #go over fellow firstname
+    for fellow in person['fellow']:
+        if (not fellow.is_allocated_living()) or (not fellow.is_allocated_office()):
+            unallocated.append(fellow)
+    for staff in person['staff']:
+        if not staff.is_allocated_office():
+            unallocated.append(staff)
+    return unallocated
