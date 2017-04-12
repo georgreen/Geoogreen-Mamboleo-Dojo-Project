@@ -153,3 +153,35 @@ def helper_addsperson_chooseroom(dojo, first_name, second_name, person_type, cho
 
 
     return status_messages
+
+
+    def list_ofpeople_inroom(room_name):
+        """
+        returns the names of all the people in room_name
+        """
+        room_name = room_name.strip()
+        rooms = dojo.office + dojo.livingspace
+        for room in rooms:
+            if room.name == room_name:
+                return list(room.get_occupants())
+                
+        raise NotFoundException
+
+    class NotFoundException(Exception):
+        pass
+
+
+    def print_allocations(file_name = ''):
+        """
+        returns a list of allocations onto the screen
+        if file_name is specified values are saved txt
+        """
+        pass
+
+
+    def print_unallocated(file_name = ''):
+        """
+        returns a list of unallocated people to the screen
+        if file_name is specified values are saved txt
+        """
+        pass
