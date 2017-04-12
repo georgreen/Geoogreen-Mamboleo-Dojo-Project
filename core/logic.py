@@ -117,8 +117,11 @@ def helper_addsperson_chooseroom(first_name, second_name, person_type, choice_li
     try:
         new_person = add_person((first_name, second_name), person_type, choice_live)
         status_messages['status'] = 'ok'
-
+        msg = "{} {} {} has been successfully added.".format(person_type, first_name, second_name)
+        status_messages['message'].append(msg)
     except TypeError:
+        msg = ""
+        status_messages['message'].append(msg)
         return status_messages
 
     if isinstance(new_person, model.Staff):
@@ -126,21 +129,32 @@ def helper_addsperson_chooseroom(first_name, second_name, person_type, choice_li
         index = choose_office_random()
         dojo.add_person_office(index, new_person)
         dojo.staff = new_person
+        office = dojo.get_office_at_index(index)
+        msg = "{} has been allocated the office {}".format(new_person.name, office.name)
+        status_messages['message'].append(msg)
     elif isinstance(new_person, model.Fellow):
         index_livingspace = choose_living_space_random()
         index_office = choose_office_random()
         dojo.add_person_office(index_office, new_person)
-        msg = 'Fellow {} Armweek has been successfully added.'.format(new_person.name)'
+        dojo.fellow = new_person
+        office = dojo.get_office_at_index(index)
+        msg = "{} has been allocated the office {}".format(new_person.name, office.name)
         status_messages['message'].append(msg)
         if new_person.wants_living:
             dojo.add_fellow_living(index_livingspace, new_person)
-        dojo.fellow = new_person
-
+            livingspace = dojo.get_livingspace_at_index(index)
+            msg = "{} has been allocated the livingspace {} ".format(new_person.name, livingspace.name)
+            status_messages['message'].append(msg)
     elif new_person == 'Invalid name':
-        pass
+        status_messages['status'] = 'Invalid name'
+        msg = ""
+        status_messages['message'] = []
     elif new_person == "Invalid choice":
-        pass
+        status_messages['status'] = 'Invalid choice'
+        msg = ""
+        status_messages['message'] = [msg]
     else:
-        pass
+        msg = ""
+        status_messages['message'] = [msg]
 
     return status_messages
