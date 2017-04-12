@@ -121,13 +121,13 @@ class test_add_person(unittest.TestCase):
 
         def test_not_found(self):
             with self.assertRaises(NotFoundException):
-                logic.list_ofpeople_inroom(self.room4.name)
+                logic.people_inroom(self.room4.name)
             with self.assertRaises(NotFoundException):
-                logic.list_ofpeople_inroom(self.room3.name)
+                logic.people_inroom(self.room3.name)
 
         def test_room_found(self):
-            self.assertEqual([self.person1, self.person2, self.person3], logic.list_ofpeople_inroom(self.room1.name))
-            self.assertEqual([self.person4], logic.list_ofpeople_inroom(self.room2.name))
+            self.assertEqual([self.person1, self.person2, self.person3], logic.people_inroom(self.room1.name))
+            self.assertEqual([self.person4], logic.people_inroom(self.room2.name))
 
         def test_empty_rooom(self):
-            self.assertEqual([], logic.list_ofpeople_inroom(self.room5.name))
+            self.assertEqual([], logic.people_inroom(self.room5.name))
