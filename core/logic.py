@@ -199,13 +199,12 @@ def people_inroom(dojo, room_name):
     for room in rooms:
         if room.name == room_name:
             return list(room.get_occupants())
-
     raise NotFoundException
 
 class NotFoundException(Exception):
     pass
 
-def dict_allocations(dojo, file_name = ''):
+def dict_allocations(dojo):
     """
     returns a dict of allocations
     if file_name is specified values are saved txt
@@ -217,7 +216,6 @@ def dict_allocations(dojo, file_name = ''):
 
     return allocations
 
-
 def list_unallocated(dojo, file_name = ''):
     """
     returns a list of unallocated people to the screen
@@ -226,11 +224,29 @@ def list_unallocated(dojo, file_name = ''):
     unallocated = []
     person = dojo.person
 
-    #go over fellow firstname
+    #go over fellow first
     for fellow in person['fellow']:
         if (not fellow.is_allocated_living()) or (not fellow.is_allocated_office()):
             unallocated.append(fellow)
+    #go over staff
     for staff in person['staff']:
         if not staff.is_allocated_office():
             unallocated.append(staff)
     return unallocated
+
+def save_data_txt(file_name, raw_data, mode = 'wt'):
+    data = []
+    for person in raw_data:
+        if isinstance(person, model.Fellow):
+            wants_living = 'N'
+            if person.wants_living:
+                wants_living = 'Y'
+            user_info = person.name.upper() + "  FELLOW  " + wants_living
+        else:
+            user_info = person.name.upper() + "  STAFF  "
+        if user_info not in data:
+            data.append(user_info)
+    file_out = open(file_name + '.txt', mode)
+    for name in data:
+        print(name, file=file_out)
+    file_out.close()
