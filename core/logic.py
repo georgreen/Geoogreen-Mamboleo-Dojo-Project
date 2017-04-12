@@ -3,7 +3,7 @@ from models import model
 import random
 
 
-def create_room(room_type, room_name):
+def create_room(room_type, room_name, dojo):
     """
     input : room_type -> string represent type of room_type
     room_name -> string represent name of room_name
@@ -26,13 +26,19 @@ def create_room(room_type, room_name):
     #map room_type to respective data type
     datatype = {'office' : model.Office, 'livingspace' : model.LivingSpace}
 
-    if room_type_cleaned.lower() in datatype:
-        return datatype[room_type_cleaned.lower()](room_name_cleaned)
-    raise TypeError
+    if not room_type_cleaned.lower() in datatype:
+        raise TypeError
+    if room_name_cleaned in dojo.takken_names:
+        return 'duplicates'
+    return datatype[room_type_cleaned.lower()](room_name_cleaned)
 
 def helper_create_and_addroom(dojo, room_type, room_name):
+    '''
+    uses create room to create a room
+    adds's new room to dojo, if valid
+    '''
     status_messages = {'status': None, 'message' : None}
-    new_room = create_room(room_type, room_name)
+    new_room = create_room(room_type, room_name, dojo)
 
     if isinstance(new_room, model.Office):
         #add to Dojo Office
@@ -44,10 +50,13 @@ def helper_create_and_addroom(dojo, room_type, room_name):
         dojo.add_livingspace(new_room)
         status_messages['status'] = 'ok'
         status_messages['message'] = "A LivingSpace called {} has been successfully created!".format(new_room.name)
-    else:
+    elif new_room == 'duplicates':
         #give some status messge
         status_messages['status'] = 'Invalid name'
-
+        status_messages['message'] = "{} called {} can not be created!: Name already exists".format(room_type, room_name)
+    else:
+        status_messages['status'] = 'Invalid name'
+        status_messages['message'] = "{} called {} can not be created!:ERROR".format(room_type, room_name)
 
     return status_messages
 
