@@ -1,7 +1,7 @@
-from context import *
+from context import models, views, core
 from core import logic
-from docopt import docopt, DocoptExit
 from views import ui
+from docopt import docopt, DocoptExit
 import cmd
 from models import model
 
@@ -76,15 +76,25 @@ class App(cmd.Cmd):
             prtint_room <room_name>
         """
         try:
-            print_option = docopt(self.do_print_room.__doc__, args)
+            room_name = docopt(self.do_print_room.__doc__, args)
 
         except DocoptExit as e:
             ui.print_message(e)
-            #call view to display Error message
         except KeyboardInterrupt:
             pass
         else:
-            ui.print_message("NOT YET IMPLEMENTED!")
+            ui.print_message("Room :" + room_name['<room_name>'])
+            ui.print_message("_" * len("Room :" + room_name['<room_name>']))
+            try:
+                occupants = logic.people_inroom(App.dojo, room_name['<room_name>'])
+                if len(occupants) > 0:
+                    print(occupants)
+                    ui.print_room_members(occupants)
+                else:
+                    ui.print_message("Empty room :-( ")
+            except logic.NotFoundException:
+                ui.print_message("Room Not Found :-( ")
+            ui.print_message(" ")
 
 
     def do_print_allocations(self, args):
@@ -94,10 +104,9 @@ class App(cmd.Cmd):
         """
         try:
             print_option = docopt(self.do_print_allocations.__doc__, args)
-
         except DocoptExit as e:
             ui.print_message(e)
-            #call view to display Error message
+
         except KeyboardInterrupt:
             pass
         else:
