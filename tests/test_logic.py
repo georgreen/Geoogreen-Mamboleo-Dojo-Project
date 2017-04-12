@@ -131,3 +131,42 @@ class test_add_person(unittest.TestCase):
 
         def test_empty_rooom(self):
             self.assertEqual([], logic.people_inroom(self.room5.name))
+
+
+class test_list_unallocated(unittest.TestCase):
+    def setUp(self):
+        self.dojo = model.Dojo("Andela_kenya-zero")
+        self.person1 = model.Staff("person1")
+        self.person2 = model.Staff("person2")
+        self.person3 = model.Staff("person3")
+
+        self.dojo.add_staff(self.person1)
+        self.dojo.add_staff(self.person2)
+        self.dojo.add_staff(self.person3)
+
+        self.dojo1 = model.Dojo("Andela")
+        self.person4 = model.Fellow("person4")
+        self.person4.office = True
+        self.person4.livingspace = True
+        self.person5 = model.Fellow("person5")
+        self.person5.office = False
+        self.person5.livingspace = True
+        self.person6 = model.Fellow("person6")
+        self.person6.livingspace = False
+        self.person6.office = True
+
+        self.dojo1.add_fellow(self.person4)
+        self.dojo1.add_fellow(self.person5)
+        self.dojo1.add_fellow(self.person6)
+
+        self.dojo2 = model.Dojo("Andela-Kenya-two")
+        self.dojo2.add_fellow(self.person6)
+        self.dojo2.add_staff(self.person1)
+
+    def  test_feat_list_unallocated(self):
+        #test fellow and staff mixed states
+        self.assertEqual([self.person5,self.person6 ], logic.list_unallocated(self.dojo1))
+        #test all not allocated staff
+        self.assertEqual([self.person1, self.person2,self.person3], logic.list_unallocated(self.dojo))
+        #test fellow
+        self.assertEqual([self.person6,self.person1], logic.list_unallocated(self.dojo2))
