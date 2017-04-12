@@ -90,7 +90,7 @@ def choose_office_random(dojo):
     choose an office at random
     """
     number_of_offices = len(dojo.office)
-    if number_of_offices:
+    if number_of_offices > 0:
         index = random.randrange(number_of_offices)
     else:
         return "NoRoomException"
@@ -101,7 +101,7 @@ def choose_living_space_random(dojo):
     choose a livingspace at random
     """
     number_of_livingspace = len(dojo.livingspace)
-    if number_of_livingspace:
+    if number_of_livingspace > 0:
         index = random.randrange(number_of_livingspace)
     else:
         return "NoRoomException"
@@ -131,7 +131,9 @@ def helper_addsperson_chooseroom(dojo, first_name, second_name, person_type, cho
         #add to dojo
         dojo.add_staff(new_person)
         index_office = choose_office_random(dojo)
-        if index_office != "NoRoomException":
+        if index_office != "NoRoomException" and \
+        not dojo.get_office_at_index(index_office).is_full():
+
             dojo.add_person_office(index_office, new_person)
             office = dojo.get_office_at_index(index_office)
             new_person.office = True
@@ -144,11 +146,15 @@ def helper_addsperson_chooseroom(dojo, first_name, second_name, person_type, cho
     elif isinstance(new_person, model.Fellow):
         #add to dojo
         dojo.add_fellow(new_person)
+
+        #generate random indexes
         index_livingspace = choose_living_space_random(dojo)
         index_office = choose_office_random(dojo)
+
         #assign fellow office
-        if index_livingspace != "NoRoomException" and \
-        not dojo.add_person_office(index_office, new_person).is_full():
+        if index_office != "NoRoomException" and \
+        not dojo.get_office_at_index(index_office).is_full():
+
             dojo.add_person_office(index_office, new_person)
             office = dojo.get_office_at_index(index_office)
             new_person.office = True
@@ -160,7 +166,8 @@ def helper_addsperson_chooseroom(dojo, first_name, second_name, person_type, cho
 
         #assign fellow living space
         if index_livingspace == "NoRoomException" or \
-        not dojo.get_livingspace_at_index(index_livingspace).is_full():
+        dojo.get_livingspace_at_index(index_livingspace).is_full():
+
             msg = "{} not has been allocated a livingspace".format(new_person.name)
             status_messages['message'].append(msg)
         elif new_person.wants_living:
@@ -197,16 +204,20 @@ def people_inroom(dojo, room_name):
 class NotFoundException(Exception):
     pass
 
-
-def print_allocations(file_name = ''):
+def dict_allocations(dojo, file_name = ''):
     """
-    returns a list of allocations onto the screen
+    returns a dict of allocations
     if file_name is specified values are saved txt
     """
-    pass
+    allocations = {}
+    rooms = dojo.office + dojo.livingspace
+    for room in rooms:
+        allocations[room.name] = people_inroom(dojo, room.name)
+
+    return allocations
 
 
-def print_unallocated(file_name = ''):
+def list_unallocated(dojo, file_name = ''):
     """
     returns a list of unallocated people to the screen
     if file_name is specified values are saved txt
