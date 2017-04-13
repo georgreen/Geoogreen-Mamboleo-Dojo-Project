@@ -89,15 +89,26 @@ def choose_office_random(dojo):
     """
     choose an office at random
     """
-    index = random.randrange(len(dojo.office))
+    number_of_offices = len(dojo.office)
+    if number_of_offices > 0:
+        index = random.randrange(number_of_offices)
+    else:
+        return "NoRoomException"
     return index
 
 def choose_living_space_random(dojo):
     """
     choose a livingspace at random
     """
-    index = random.randrange(len(dojo.livingspace))
+    number_of_livingspace = len(dojo.livingspace)
+    if number_of_livingspace > 0:
+        index = random.randrange(number_of_livingspace)
+    else:
+        return "NoRoomException"
     return index
+
+class NoRoomException(Exception):
+    pass
 
 def helper_addsperson_chooseroom(dojo, first_name, second_name, person_type, choice_live = 'N'):
     """
@@ -118,38 +129,97 @@ def helper_addsperson_chooseroom(dojo, first_name, second_name, person_type, cho
 
     if isinstance(new_person, model.Staff):
         #add to dojo
-        index_office = choose_office_random(dojo)
-        dojo.add_person_office(index_office, new_person)
         dojo.add_staff(new_person)
-        office = dojo.get_office_at_index(index_office)
-        msg = "{} has been allocated the office {}".format(new_person.name, office.name)
-        status_messages['message'].append(msg)
+        index_office = choose_office_random(dojo)
+        if index_office != "NoRoomException" and \
+        not dojo.get_office_at_index(index_office).is_full():
 
+            dojo.add_person_office(index_office, new_person)
+            office = dojo.get_office_at_index(index_office)
+            new_person.office = True
+            msg = "{} has been allocated the office {}".format(new_person.name, office.name)
+            status_messages['message'].append(msg)
+        else:
+            #change status to not added no room
+            msg = "{} not has been allocated the office".format(new_person.name)
+            status_messages['message'].append(msg)
     elif isinstance(new_person, model.Fellow):
+        #add to dojo
+        dojo.add_fellow(new_person)
+
+        #generate random indexes
         index_livingspace = choose_living_space_random(dojo)
         index_office = choose_office_random(dojo)
-        dojo.add_person_office(index_office, new_person)
-        dojo.add_fellow(new_person)
-        office = dojo.get_office_at_index(index_office)
-        msg = "{} has been allocated the office {}".format(new_person.name, office.name)
-        status_messages['message'].append(msg)
 
-        if new_person.wants_living:
-            dojo.add_fellow_living(index_livingspace, new_person)
-            livingspace = dojo.get_livingspace_at_index(index_livingspace)
-            msg = "{} has been allocated the livingspace {} ".format(new_person.name, livingspace.name)
+        #assign fellow office
+        if index_office != "NoRoomException" and \
+        not dojo.get_office_at_index(index_office).is_full():
+
+            dojo.add_person_office(index_office, new_person)
+            office = dojo.get_office_at_index(index_office)
+            new_person.office = True
+            msg = "{} has been allocated the office {}".format(new_person.name, office.name)
+            status_messages['message'].append(msg)
+        else:
+            msg = "{} has not been allocated an office".format(new_person.name)
             status_messages['message'].append(msg)
 
+        #assign fellow living space
+        if index_livingspace == "NoRoomException" or \
+        dojo.get_livingspace_at_index(index_livingspace).is_full():
+
+            msg = "{} not has been allocated a livingspace".format(new_person.name)
+            status_messages['message'].append(msg)
+        elif new_person.wants_living:
+            dojo.add_fellow_living(index_livingspace, new_person)
+            livingspace = dojo.get_livingspace_at_index(index_livingspace)
+            new_person.livingspace = True
+            msg = "{} has been allocated the livingspace {} ".format(new_person.name, livingspace.name)
+            status_messages['message'].append(msg)
     elif new_person == 'Invalid name':
         status_messages['status'] = 'Invalid name'
         msg =  "{} {} has not been  added  ".format(person_type, name)
         status_messages['message'] = []
-
     elif new_person == "Invalid choice":
         status_messages['status'] = 'Invalid choice'
         msg = "{} {} has not been  added  ".format(person_type, name)
         msg_not_allocated = "{} {} has not been  allocated living space  ".format(person_type, name)
         status_messages['message'] = [msg]
 
-
     return status_messages
+
+
+def people_inroom(dojo, room_name):
+    """
+    returns the names of all the people in room_name
+    """
+    room_name = room_name.strip()
+    rooms = dojo.office + dojo.livingspace
+    for room in rooms:
+        if room.name == room_name:
+            return list(room.get_occupants())
+
+    raise NotFoundException
+
+class NotFoundException(Exception):
+    pass
+
+def dict_allocations(dojo, file_name = ''):
+    """
+    returns a dict of allocations
+    if file_name is specified values are saved txt
+    """
+    allocations = {}
+    rooms = dojo.office + dojo.livingspace
+    for room in rooms:
+        allocations[room.name] = people_inroom(dojo, room.name)
+
+    return allocations
+
+
+def list_unallocated(dojo, file_name = ''):
+    """
+    returns a list of unallocated people to the screen
+    if file_name is specified values are saved txt
+    """
+    pass
