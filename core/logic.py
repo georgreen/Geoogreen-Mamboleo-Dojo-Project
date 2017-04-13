@@ -3,7 +3,7 @@ from models import model
 import random
 
 
-def create_room(room_type, room_name):
+def create_room(room_type, room_name, dojo):
     """
     input : room_type -> string represent type of room_type
     room_name -> string represent name of room_name
@@ -26,13 +26,19 @@ def create_room(room_type, room_name):
     #map room_type to respective data type
     datatype = {'office' : model.Office, 'livingspace' : model.LivingSpace}
 
-    if room_type_cleaned.lower() in datatype:
-        return datatype[room_type_cleaned.lower()](room_name_cleaned)
-    raise TypeError
+    if not room_type_cleaned.lower() in datatype:
+        raise TypeError
+    if room_name_cleaned in dojo.takken_names:
+        return 'duplicates'
+    return datatype[room_type_cleaned.lower()](room_name_cleaned)
 
 def helper_create_and_addroom(dojo, room_type, room_name):
+    '''
+    uses create room to create a room
+    adds's new room to dojo, if valid
+    '''
     status_messages = {'status': None, 'message' : None}
-    new_room = create_room(room_type, room_name)
+    new_room = create_room(room_type, room_name, dojo)
 
     if isinstance(new_room, model.Office):
         #add to Dojo Office
@@ -44,10 +50,13 @@ def helper_create_and_addroom(dojo, room_type, room_name):
         dojo.add_livingspace(new_room)
         status_messages['status'] = 'ok'
         status_messages['message'] = "A LivingSpace called {} has been successfully created!".format(new_room.name)
-    else:
+    elif new_room == 'duplicates':
         #give some status messge
         status_messages['status'] = 'Invalid name'
-
+        status_messages['message'] = "{} called {} can not be created!: Name already exists".format(room_type, room_name)
+    else:
+        status_messages['status'] = 'Invalid name'
+        status_messages['message'] = "{} called {} can not be created!:ERROR".format(room_type, room_name)
 
     return status_messages
 
@@ -81,8 +90,13 @@ def add_person(names, person_type, wants_livingspace = 'N'):
         choice = True
 
     if person_type == 'staff':
-        return model.Staff(name)
-    return model.Fellow(name, choice)
+        new_person = model.Staff(name)
+        new_person.office = False
+        return new_person
+    new_person =  model.Fellow(name, choice)
+    new_person.livingspace = False
+    new_person.office = False
+    return new_person
 
 
 def choose_office_random(dojo):
@@ -90,7 +104,7 @@ def choose_office_random(dojo):
     choose an office at random
     """
     number_of_offices = len(dojo.office)
-    if number_of_offices:
+    if number_of_offices > 0:
         index = random.randrange(number_of_offices)
     else:
         return "NoRoomException"
@@ -101,7 +115,7 @@ def choose_living_space_random(dojo):
     choose a livingspace at random
     """
     number_of_livingspace = len(dojo.livingspace)
-    if number_of_livingspace:
+    if number_of_livingspace > 0:
         index = random.randrange(number_of_livingspace)
     else:
         return "NoRoomException"
@@ -120,6 +134,7 @@ def helper_addsperson_chooseroom(dojo, first_name, second_name, person_type, cho
     try:
         new_person = add_person((first_name, second_name), person_type, choice_live)
         status_messages['status'] = 'ok'
+        new_person.office = None
         msg = "{} {} {} has been successfully added.".format(person_type, first_name, second_name)
         status_messages['message'].append(msg)
     except TypeError:
@@ -131,7 +146,9 @@ def helper_addsperson_chooseroom(dojo, first_name, second_name, person_type, cho
         #add to dojo
         dojo.add_staff(new_person)
         index_office = choose_office_random(dojo)
-        if index_office != "NoRoomException":
+        if index_office != "NoRoomException" and \
+        not dojo.get_office_at_index(index_office).is_full():
+
             dojo.add_person_office(index_office, new_person)
             office = dojo.get_office_at_index(index_office)
             new_person.office = True
@@ -144,11 +161,15 @@ def helper_addsperson_chooseroom(dojo, first_name, second_name, person_type, cho
     elif isinstance(new_person, model.Fellow):
         #add to dojo
         dojo.add_fellow(new_person)
+
+        #generate random indexes
         index_livingspace = choose_living_space_random(dojo)
         index_office = choose_office_random(dojo)
+
         #assign fellow office
-        if index_livingspace != "NoRoomException" and \
-        not dojo.add_person_office(index_office, new_person).is_full():
+        if index_office != "NoRoomException" and \
+        not dojo.get_office_at_index(index_office).is_full():
+
             dojo.add_person_office(index_office, new_person)
             office = dojo.get_office_at_index(index_office)
             new_person.office = True
@@ -160,7 +181,8 @@ def helper_addsperson_chooseroom(dojo, first_name, second_name, person_type, cho
 
         #assign fellow living space
         if index_livingspace == "NoRoomException" or \
-        not dojo.get_livingspace_at_index(index_livingspace).is_full():
+        dojo.get_livingspace_at_index(index_livingspace).is_full():
+
             msg = "{} not has been allocated a livingspace".format(new_person.name)
             status_messages['message'].append(msg)
         elif new_person.wants_living:
@@ -191,24 +213,118 @@ def people_inroom(dojo, room_name):
     for room in rooms:
         if room.name == room_name:
             return list(room.get_occupants())
-
     raise NotFoundException
 
 class NotFoundException(Exception):
     pass
 
-
-def print_allocations(file_name = ''):
+def dict_allocations(dojo):
     """
-    returns a list of allocations onto the screen
+    returns a dict of allocations
     if file_name is specified values are saved txt
     """
-    pass
+    allocations = {}
+    rooms = dojo.office + dojo.livingspace
+    for room in rooms:
+        allocations[room.name] = people_inroom(dojo, room.name)
 
+    return allocations
 
-def print_unallocated(file_name = ''):
+def list_unallocated(dojo, file_name = ''):
     """
     returns a list of unallocated people to the screen
     if file_name is specified values are saved txt
     """
-    pass
+    unallocated = []
+    person = dojo.person
+
+    #go over fellow first
+    for fellow in person['fellow']:
+        if (not fellow.is_allocated_living()) or (not fellow.is_allocated_office()):
+            unallocated.append(fellow)
+    #go over staff
+    for staff in person['staff']:
+        if not staff.is_allocated_office():
+            unallocated.append(staff)
+    return unallocated
+
+def save_data_txt(file_name, raw_data, mode = 'wt'):
+    data = []
+    for person in raw_data:
+        if isinstance(person, model.Fellow):
+            wants_living = 'N'
+            if person.wants_living:
+                wants_living = 'Y'
+            user_info = person.name.upper() + "  FELLOW  " + wants_living
+        else:
+            user_info = person.name.upper() + "  STAFF  "
+        if user_info not in data:
+            data.append(user_info)
+    file_out = open(file_name + '.txt', mode)
+    for name in data:
+        print(name, file=file_out)
+    file_out.close()
+
+def reallocate_person(room_name, person_id, dojo):
+    find_person = None
+    find_person_type = ''
+    find_room = None
+    find_room_type = ''
+    find_current_room = None
+    try:
+        person_id = int(person_id)
+    except Exception:
+        return "Insert Valid Id's: Intergers only"
+    #get the person and their type brute force
+    for type_person in dojo.person:
+        for person in dojo.person[type_person]:
+            if person.id == person_id:
+                find_person = person
+                find_person_type = type_person
+                break
+    if not find_person or person_id < 0:
+        return "Person not found"
+
+    #get the room brute force
+    room_name = room_name.strip().lower()
+    if not room_name in dojo.takken_names :
+        return "Room not found"
+    else:
+        for room_type in dojo.rooms:
+            for room in dojo.rooms[room_type]:
+                if room.name == room_name:
+                    find_room = room
+                    find_room_type = room_type
+                if find_person in room.occupants:
+                    find_current_room = room
+
+    #handle reallocating fellow to livingspaces
+    if find_person_type == 'fellow':
+        if find_room_type == 'livingspace':
+            #check to see if fellow what's living space
+            if not find_person.wants_living:
+                return "Invalid Operation"
+            #remove them in previoius room
+            if find_person.is_allocated_living():
+                find_current_room.remove(find_person)
+
+            #allocate living space
+            index = choose_living_space_random(dojo)
+            new_room = dojo.rooms['livingspace'][index]
+            new_room.add_occupant(find_person)
+            find_person.livingspace = True
+
+    #staff not allowed to have living space
+    if find_person_type == 'staff':
+        if find_room_type == 'livingspace':
+            return "Invalid operations"
+
+    #handle office reallocation
+    if find_room_type == 'offices':
+        if find_current_room:
+            find_current_room.remove(find_person)
+        index= choose_office_random(dojo)
+        new_room = dojo.rooms['offices'][index]
+        new_room.add_occupant(find_person)
+        find_person.office = True
+    return 'Done'

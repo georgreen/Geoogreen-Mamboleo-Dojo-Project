@@ -8,25 +8,26 @@ from core import logic
 import unittest
 
 class test_create_room(unittest.TestCase):
+    dojo = model.Dojo("Andela-Kenya")
     def setUp(self):
-        self.white_char_in_name = logic.create_room('office', "name        ")
-        self.white_char_in_typr = logic.create_room('livingspace        ', "name")
+        self.white_char_in_name = logic.create_room('office', "name        ", test_create_room.dojo)
+        self.white_char_in_typr = logic.create_room('livingspace        ', "name",test_create_room.dojo)
 
 
     def test_create_room_office(self):
-        new_office = logic.create_room('office', 'orange')
+        new_office = logic.create_room('office', 'orange', test_create_room.dojo)
         self.assertIsInstance(new_office, model.Office)
 
     def test_create_room_livingspace(self):
-        new_livingspace = logic.create_room('livingspace', 'manjaro')
+        new_livingspace = logic.create_room('livingspace', 'manjaro', test_create_room.dojo)
         self.assertIsInstance(new_livingspace, model.LivingSpace)
 
     def test_create_room_Wrongtype(self):
         with self.assertRaises(TypeError):
-            logic.create_room('wrongname', 'gooodname')
+            logic.create_room('wrongname', 'gooodname', test_create_room.dojo)
 
     def test_create_room_Noname(self):
-        self.assertEqual(logic.create_room('office', ' '), 'Invalid name')
+        self.assertEqual(logic.create_room('office', ' ', test_create_room.dojo), 'Invalid name')
 
     def test_white_char_in_name(self):
         self.assertEqual(self.white_char_in_name.name, "name")
@@ -131,3 +132,83 @@ class test_add_person(unittest.TestCase):
 
         def test_empty_rooom(self):
             self.assertEqual([], logic.people_inroom(self.room5.name))
+
+
+class test_list_unallocated(unittest.TestCase):
+    def setUp(self):
+        self.dojo = model.Dojo("Andela_kenya-zero")
+        self.person1 = model.Staff("person1")
+        self.person2 = model.Staff("person2")
+        self.person3 = model.Staff("person3")
+
+        self.dojo.add_staff(self.person1)
+        self.dojo.add_staff(self.person2)
+        self.dojo.add_staff(self.person3)
+
+        self.dojo1 = model.Dojo("Andela")
+        self.person4 = model.Fellow("person4")
+        self.person4.office = True
+        self.person4.livingspace = True
+        self.person5 = model.Fellow("person5")
+        self.person5.office = False
+        self.person5.livingspace = True
+        self.person6 = model.Fellow("person6")
+        self.person6.livingspace = False
+        self.person6.office = True
+
+        self.dojo1.add_fellow(self.person4)
+        self.dojo1.add_fellow(self.person5)
+        self.dojo1.add_fellow(self.person6)
+
+        self.dojo2 = model.Dojo("Andela-Kenya-two")
+        self.dojo2.add_fellow(self.person6)
+        self.dojo2.add_staff(self.person1)
+
+    def  test_feat_list_unallocated(self):
+        #test fellow and staff mixed states
+        self.assertEqual([self.person5,self.person6 ], logic.list_unallocated(self.dojo1))
+        #test all not allocated staff
+        self.assertEqual([self.person1, self.person2,self.person3], logic.list_unallocated(self.dojo))
+        #test fellow
+        self.assertEqual([self.person6,self.person1], logic.list_unallocated(self.dojo2))
+
+class test_reallocate(unittest.TestCase):
+    def setUp(self):
+        model.Person.number_of_person  = 0
+        self.dojo = model.Dojo("Andela_kenya")
+        self.person1 = model.Staff("person1")
+        self.person2 =model.Staff("person2")
+        self.person3 =model.Fellow("person3")
+        self.person4 = model.Fellow("person4")
+
+        self.room1 = model.Office("room1")
+        self.room2 = model.LivingSpace("room2")
+
+        self.room1.add_occupant(self.person1)
+        self.room2.add_occupant(self.person4)
+        self.person1.office = True
+        self.person4.office = False
+        self.person4.livingspace = True
+
+        self.dojo.add_office(self.room1)
+        self.dojo.add_livingspace(self.room2)
+
+        self.dojo.add_staff(self.person1)
+        self.dojo.add_staff(self.person2)
+        self.dojo.add_fellow(self.person3)
+        self.dojo.add_fellow(self.person4)
+
+    def test_reallocate(self):
+        #reallocate unallocated people
+        msg = logic.reallocate_person(self.room1.name, 2, self.dojo)
+        self.assertEqual(self.person2.office, True)
+        masg = logic.reallocate_person(self.room1.name, 3, self.dojo)
+        self.assertEqual(self.person3.office, True)
+        msg = logic.reallocate_person(self.room2.name, 3, self.dojo)
+        self.assertEqual(self.person3.livingspace, True)
+
+        #reallocate already allocated people
+        msg = logic.reallocate_person(self.room2.name, 1, self.dojo)
+        self.assertEqual("Invalid operation", msg)
+        msg = logic.reallocate_person(self.room1.name, 4, self.dojo)
+        self.assertEqual(self.person4.office, True)
