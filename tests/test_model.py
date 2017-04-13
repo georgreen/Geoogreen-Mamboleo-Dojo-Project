@@ -164,12 +164,12 @@ class test_dojo(unittest.TestCase):
         self.person4 = model.Staff("Someone")
 
         #############update dojo with info###########
-        self.dojo1.office = self.room
-        self.dojo1.office = self.room2
-        self.dojo1.livingspace = self.room3
-        self.dojo1.livingspace = self.room4
-        self.dojo1.staff = self.person3
-        self.dojo1.staff = self.person4
+        self.dojo1.add_office(self.room)
+        self.dojo1.add_office(self.room2)
+        self.dojo1.add_livingspace(self.room3)
+        self.dojo1.add_livingspace(self.room4)
+        self.dojo1.add_staff(self.person3)
+        self.dojo1.add_staff(self.person4)
 
 
     #test badtype as name input
