@@ -1,7 +1,9 @@
 # Office And LivingSpace Allocation System
-A Command line application that managers a dojo system 
-    Adds rooms[office | living space]
-    Adds Person[fellow| staff]
+A Command line application that managers a dojo system <br/>
+    Adds rooms[office | living space] <br/>
+    Adds Person[fellow| staff] <br/>
+    Print Allocations <br/>
+    print Unallocated <br/>
 
 
 ## Getting Started
@@ -64,7 +66,7 @@ Automating test: make test
 To run tests run the command above : Require's nosetests
 
 
-##How to run 
+## How to run
 ```
 python3 app.py
 ```
@@ -81,7 +83,7 @@ version 2.5
 
 ## Authors
 
-* **Georgreen Ngunga** 
+* **Georgreen Ngunga**
 
 
 ## License
@@ -93,8 +95,6 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 * [Stack Overflow] https://stackoverflow.com/
 * [The Hitchhiker’s Guide to Python!]http://python-guide-pt-br.readthedocs.io/en/latest/
 
-##Wish List
+## Wish List
 * Add feature Load text.txt
 * Database support
-
-
