@@ -6,7 +6,8 @@ Usage:
     print_room <room_name>
     print_allocations <filename>
     print_unallocated <filename>
-    load_people <filename>
+    reallocate_person <person_identifier> <new_room_name>
+    load_people <person_identifier> <new_room_name>
 
 Arguments:
     FELLOW|STAFF           Person type to create
@@ -224,7 +225,7 @@ class App(cmd.Cmd):
     def do_load_people(self, args):
         """
         Usage:
-            reallocate_person <person_identifier> <new_room_name>
+            load_people <person_identifier> <new_room_name>
         """
         try:
             reallocate_information = docopt(self.do_reallocate_person.__doc__, args)
