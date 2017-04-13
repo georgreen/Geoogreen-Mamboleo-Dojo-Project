@@ -4,6 +4,7 @@ from views import ui
 from docopt import docopt, DocoptExit
 import cmd
 from models import model
+import csv
 
 class App(cmd.Cmd):
     #my shell promt format
@@ -109,20 +110,22 @@ class App(cmd.Cmd):
         except KeyboardInterrupt:
             pass
         else:
-            #ui.print_message("NOT YET IMPLEMENTED!")
-            allocations = logic.dict_allocations(App.dojo, file_name['<-o=FILE>'])
-            #print(allocations)
-            for room_name in allocations:
-                ui.print_message("Room :" + room_name)
-                ui.print_message("_" * len("Room :" + room_name))
+            allocations = logic.dict_allocations(App.dojo)
+            if file_name['<-o=FILE>']:
+                mode = 'wt'
+                for raw_data in allocations.values():
+                    logic.save_data_txt(file_name['<-o=FILE>'], raw_data, mode)
+                    mode = 'at'
+                ui.print_message("Data saved succefully to file: " + file_name['<-o=FILE>'])
+            else:
+                for room_name in allocations:
+                    ui.print_message("Room :" + room_name)
+                    ui.print_message("_" * len("Room :" + room_name))
 
-                if len(allocations[room_name]) > 0:
-                    ui.print_room_members(allocations[room_name])
-                else:
-                    ui.print_message("Empty room :-( ")
-
-
-
+                    if len(allocations[room_name]) > 0:
+                        ui.print_room_members(allocations[room_name])
+                    else:
+                        ui.print_message("Empty room :-( ")
 
     def do_print_unallocated(self, args):
         """
@@ -130,7 +133,7 @@ class App(cmd.Cmd):
             print_unallocations [<-o=FILE>]
         """
         try:
-            print_option = docopt(self.do_print_unallocated.__doc__, args)
+            file_name = docopt(self.do_print_unallocated.__doc__, args)
 
         except DocoptExit as e:
             ui.print_message(e)
@@ -139,7 +142,58 @@ class App(cmd.Cmd):
             pass
         else:
             unallocated_person = logic.list_unallocated(App.dojo)
-            ui.print_message("NOT YET IMPLEMENTED!")
+            if file_name['<-o=FILE>']:
+                logic.save_data_txt(file_name['<-o=FILE>'], unallocated_person)
+                ui.print_message("Data saved succefully to file: " + file_name['<-o=FILE>'])
+            else:
+                ui.print_message("*" * 40)
+                ui.print_message('      LIST OF UNALLOCATED PEOPLE')
+                ui.print_message("*" * 40)
+
+                #build display message
+                if len(unallocated_person) > 0:
+                    user_info = ''
+                    for person in unallocated_person:
+                        user_info = person.name.upper()
+                        if isinstance(person, model.Fellow):
+                            wants_living = 'N'
+                            user_info += "  FELLOW "
+                            if person.wants_living:
+                                wants_living = 'Y'
+                            user_info += wants_living
+                        else:
+                            user_info += "  STAFFF   "
+                        ui.print_not_allocated(user_info)
+                else:
+                    ui.print_message("Every one is allocated ;-)")
+
+    def do_reallocate_person(self, args):
+        """
+        Usage:
+            reallocate_person <person_identifier> <new_room_name>
+        """
+        try:
+            reallocate_information = docopt(self.do_reallocate_person.__doc__, args)
+
+        except DocoptExit as e:
+            ui.print_message(e)
+            #call view to display Error message
+        except KeyboardInterrupt:
+            pass
+
+    def do_load_people(self, args):
+        """
+        Usage:
+            reallocate_person <person_identifier> <new_room_name>
+        """
+        try:
+            reallocate_information = docopt(self.do_reallocate_person.__doc__, args)
+
+        except DocoptExit as e:
+            ui.print_message(e)
+            #call view to display Error message
+        except KeyboardInterrupt:
+            pass
 
 
 
