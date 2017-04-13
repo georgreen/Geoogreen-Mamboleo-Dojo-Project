@@ -234,15 +234,14 @@ class Fellow(Person):
         Fellow.number_of_fellows += 1
         Person.__init__(self, name)
         self.wants_living = wants_living
-        self.livingspace = None
-
+        self.livingspace = False
 
     def is_allocated_living(self):
-        return not (not self.livingspace)
+        return self.livingspace
 
     def set_livingspace(self, space):
         if self.wants_living:
-            self.livingspace = space
+            pass
 
     def remove_livingspace(self):
         self.livingspace = None

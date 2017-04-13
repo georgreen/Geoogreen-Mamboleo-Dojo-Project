@@ -87,7 +87,7 @@ class test_person(unittest.TestCase):
         self.livingspace1 = model.Office('manjaro')
 
         self.fellow2.office = self.office1
-        self.fellow2.livingspace = self.livingspace
+        self.fellow2.livingspace = True
 
 
     def test_person_instance(self):
@@ -116,7 +116,7 @@ class test_person(unittest.TestCase):
         self.assertEqual(model.Staff.number_of_staff, 2)
 
     def test_fellow_add_living(self):
-        self.assertEqual(self.fellow2.livingspace, self.livingspace)
+        self.assertEqual(self.fellow2.livingspace, True)
 
     def test_fellow_is_allocated_living(self):
         self.assertEqual(self.fellow2.is_allocated_living(), True)

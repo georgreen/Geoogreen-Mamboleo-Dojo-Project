@@ -180,6 +180,11 @@ class App(cmd.Cmd):
             #call view to display Error message
         except KeyboardInterrupt:
             pass
+        else:
+            room_name = reallocate_information['<new_room_name>']
+            person_id = reallocate_information['<person_identifier>']
+            status = logic.reallocate_person(room_name, person_id , App.dojo)
+            ui.print_message(status)
 
     def do_load_people(self, args):
         """

@@ -171,3 +171,44 @@ class test_list_unallocated(unittest.TestCase):
         self.assertEqual([self.person1, self.person2,self.person3], logic.list_unallocated(self.dojo))
         #test fellow
         self.assertEqual([self.person6,self.person1], logic.list_unallocated(self.dojo2))
+
+class test_reallocate(unittest.TestCase):
+    def setUp(self):
+        model.Person.number_of_person  = 0
+        self.dojo = model.Dojo("Andela_kenya")
+        self.person1 = model.Staff("person1")
+        self.person2 =model.Staff("person2")
+        self.person3 =model.Fellow("person3")
+        self.person4 = model.Fellow("person4")
+
+        self.room1 = model.Office("room1")
+        self.room2 = model.LivingSpace("room2")
+
+        self.room1.add_occupant(self.person1)
+        self.room2.add_occupant(self.person4)
+        self.person1.office = True
+        self.person4.office = False
+        self.person4.livingspace = True
+
+        self.dojo.add_office(self.room1)
+        self.dojo.add_livingspace(self.room2)
+
+        self.dojo.add_staff(self.person1)
+        self.dojo.add_staff(self.person2)
+        self.dojo.add_fellow(self.person3)
+        self.dojo.add_fellow(self.person4)
+
+    def test_reallocate(self):
+        #reallocate unallocated people
+        msg = logic.reallocate_person(self.room1.name, 2, self.dojo)
+        self.assertEqual(self.person2.office, True)
+        masg = logic.reallocate_person(self.room1.name, 3, self.dojo)
+        self.assertEqual(self.person3.office, True)
+        msg = logic.reallocate_person(self.room2.name, 3, self.dojo)
+        self.assertEqual(self.person3.livingspace, True)
+
+        #reallocate already allocated people
+        msg = logic.reallocate_person(self.room2.name, 1, self.dojo)
+        self.assertEqual("Invalid operation", msg)
+        msg = logic.reallocate_person(self.room1.name, 4, self.dojo)
+        self.assertEqual(self.person4.office, True)

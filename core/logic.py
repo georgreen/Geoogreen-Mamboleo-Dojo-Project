@@ -90,8 +90,13 @@ def add_person(names, person_type, wants_livingspace = 'N'):
         choice = True
 
     if person_type == 'staff':
-        return model.Staff(name)
-    return model.Fellow(name, choice)
+        new_person = model.Staff(name)
+        new_person.office = False
+        return new_person
+    new_person =  model.Fellow(name, choice)
+    new_person.livingspace = False
+    new_person.office = False
+    return new_person
 
 
 def choose_office_random(dojo):
@@ -259,3 +264,64 @@ def save_data_txt(file_name, raw_data, mode = 'wt'):
     for name in data:
         print(name, file=file_out)
     file_out.close()
+
+def reallocate_person(room_name, person_id, dojo):
+    find_person = None
+    find_person_type = ''
+    find_room = None
+    find_room_type = ''
+    find_current_room = None
+    person_id = int(person_id)
+    #get the person and their type brute force
+    for type_person in dojo.person:
+        for person in dojo.person[type_person]:
+            if person.id == person_id:
+                find_person = person
+                find_person_type = type_person
+                break
+    if not find_person:
+        return "Person not found"
+
+    #get the room brute force
+    room_name = room_name.strip().lower()
+    if not room_name in dojo.takken_names :
+        return "Room not found"
+    else:
+        for room_type in dojo.rooms:
+            for room in dojo.rooms[room_type]:
+                if room.name == room_name:
+                    find_room = room
+                    find_room_type = room_type
+                if find_person in room.occupants:
+                    find_current_room = room
+
+    #handle reallocating fellow to livingspaces
+    if find_person_type == 'fellow':
+        if find_room_type == 'livingspace':
+            #check to see if fellow what's living space
+            if not find_person.wants_living:
+                return "Invalid Operation"
+            #remove them in previoius room
+            if find_person.is_allocated_living():
+                find_current_room.remove(find_person)
+
+            #allocate living space
+            index = choose_living_space_random(dojo)
+            new_room = dojo.rooms['livingspace'][index]
+            new_room.add_occupant(find_person)
+            find_person.livingspace = True
+
+    #staff not allowed to have living space
+    if find_person_type == 'staff':
+        if find_room_type == 'livingspace':
+            return "Invalid operations"
+
+    #handle office reallocation
+    if find_room_type == 'offices':
+        if find_current_room:
+            find_current_room.remove(find_person)
+        index= choose_office_random(dojo)
+        new_room = dojo.rooms['offices'][index]
+        new_room.add_occupant(find_person)
+        find_person.office = True
+    return 'Done'
