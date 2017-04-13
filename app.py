@@ -1,19 +1,54 @@
-from context import models, views, core
+# -*- coding: utf-8 -*-
+'''
+Usage:
+    create room <room_type> <room_name> ...
+    add person <first_name> <last_name> <FELLOW>|<STAFF> [<wants_accommodation>]
+    print_room <room_name>
+    print_allocations <filename>
+    print_unallocated <filename>
+    load_people <filename>
+
+Arguments:
+    FELLOW|STAFF           Person type to create
+    wants_accommodation    Specify if fellow wants a living space
+Options:
+    -h, --help           : To show the command's help messsage
+'''
+
+
+from context import models, views, core, os
 from core import logic
 from views import ui
 from docopt import docopt, DocoptExit
 import cmd
 from models import model
+from pyfiglet import figlet_format
+from termcolor import cprint, colored
 import csv
+
+
 
 class App(cmd.Cmd):
     #my shell promt format
+    os.system('clear')
+    cprint(figlet_format("Office LivingSpace Allocation System " ), 'white', attrs=['bold'])
     prompt = "INPUT $ > "
     dojo = model.Dojo("Andela-Kenya")
     ui.print_welcome()
 
-    def docopt_helper(function_name):
-        pass
+    def do_top(self, args):
+        '''
+        Usage:
+        top
+        '''
+        os.system('clear')
+    def do_quit(self, args):
+        '''
+        Usage:
+        quit
+        '''
+        cprint(figlet_format("GoodBye!"), 'white', attrs=['bold'])
+        exit(0)
 
     def do_create_room(self,args):
         """
@@ -74,7 +109,7 @@ class App(cmd.Cmd):
     def do_print_room(self, args):
         """
         Usage:
-            prtint_room <room_name>
+            print_room <room_name>
         """
         try:
             room_name = docopt(self.do_print_room.__doc__, args)
@@ -205,4 +240,5 @@ class App(cmd.Cmd):
 
 
 if __name__ == '__main__':
+    print(__doc__)
     App().cmdloop()
