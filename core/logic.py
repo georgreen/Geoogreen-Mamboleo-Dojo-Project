@@ -90,8 +90,13 @@ def add_person(names, person_type, wants_livingspace = 'N'):
         choice = True
 
     if person_type == 'staff':
-        return model.Staff(name)
-    return model.Fellow(name, choice)
+        new_person = model.Staff(name)
+        new_person.office = False
+        return new_person
+    new_person =  model.Fellow(name, choice)
+    new_person.livingspace = False
+    new_person.office = False
+    return new_person
 
 
 def choose_office_random(dojo):
@@ -270,7 +275,6 @@ def reallocate_person(room_name, person_id, dojo):
     #get the person and their type brute force
     for type_person in dojo.person:
         for person in dojo.person[type_person]:
-            print(person.id)
             if person.id == person_id:
                 find_person = person
                 find_person_type = type_person
@@ -298,8 +302,9 @@ def reallocate_person(room_name, person_id, dojo):
             if not find_person.wants_living:
                 return "Invalid Operation"
             #remove them in previoius room
-            if find_person.is_allocated_living:
+            if find_person.is_allocated_living():
                 find_current_room.remove(find_person)
+
             #allocate living space
             index = choose_living_space_random(dojo)
             new_room = dojo.rooms['livingspace'][index]
@@ -313,7 +318,6 @@ def reallocate_person(room_name, person_id, dojo):
 
     #handle office reallocation
     if find_room_type == 'offices':
-        print("Changing........")
         if find_current_room:
             find_current_room.remove(find_person)
         index= choose_office_random(dojo)
