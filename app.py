@@ -199,6 +199,8 @@ class App(cmd.Cmd):
             #call view to display Error message
         except KeyboardInterrupt:
             pass
+        else:
+            ui.print_message("Not Implemeted")
 
 
 
