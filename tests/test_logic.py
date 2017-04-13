@@ -174,6 +174,7 @@ class test_list_unallocated(unittest.TestCase):
 
 class test_reallocate(unittest.TestCase):
     def setUp(self):
+        model.Person.number_of_person  = 0
         self.dojo = model.Dojo("Andela_kenya")
         self.person1 = model.Staff("person1")
         self.person2 =model.Staff("person2")
@@ -199,15 +200,15 @@ class test_reallocate(unittest.TestCase):
 
     def test_reallocate(self):
         #reallocate unallocated people
-        logic.reallocate_person(self.room1, 2, self.dojo)
+        msg = logic.reallocate_person(self.room1.name, 2, self.dojo)
         self.assertEqual(self.person2.office, True)
-        logic.reallocate_person(self.room1, 3, self.dojo)
+        masg = logic.reallocate_person(self.room1.name, 3, self.dojo)
         self.assertEqual(self.person3.office, True)
-        logic.reallocate_person(self.room2, 3, self.dojo)
+        msg = logic.reallocate_person(self.room2.name, 3, self.dojo)
         self.assertEqual(self.person3.livingspace, True)
 
         #reallocate already allocated people
-        msg = logic.reallocate_person(self.room2, 1, self.dojo)
+        msg = logic.reallocate_person(self.room2.name, 1, self.dojo)
         self.assertEqual("Invalid operation", msg)
-        msg = logic.reallocate_person(self.room1, 4, self.dojo)
+        msg = logic.reallocate_person(self.room1.name, 4, self.dojo)
         self.assertEqual(self.person4.office, True)
