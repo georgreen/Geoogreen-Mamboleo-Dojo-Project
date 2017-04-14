@@ -23,13 +23,9 @@ import cmd
 from models import model
 from pyfiglet import figlet_format
 from termcolor import cprint, colored
-<<<<<<< HEAD
-
-=======
 import csv
 from views import ui
 from core import logic
->>>>>>> cbbba5c70130efefcf48527b3f502bcce35f1f56
 
 
 
