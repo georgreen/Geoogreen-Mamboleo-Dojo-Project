@@ -206,7 +206,7 @@ class App(cmd.Cmd):
     def do_reallocate_person(self, args):
         """
         Usage:
-            reallocate_person <person_identifier> <new_room_name>
+            reallocate_person <person_id> <new_room_name>
         """
         try:
             reallocate_information = docopt(self.do_reallocate_person.__doc__, args)
