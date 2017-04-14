@@ -222,25 +222,7 @@ class App(cmd.Cmd):
             status = logic.reallocate_person(room_name, person_id , App.dojo)
             ui.print_message(status)
 
-    def do_load_people(self, args):
-        """
-        Usage:
-            load_people <file_name>
-        """
-        try:
-            file_name = docopt(self.do_reallocate_person.__doc__, args)
-
-        except DocoptExit as e:
-            ui.print_message(e)
-            #call view to display Error message
-        except KeyboardInterrupt:
-            pass
-        else:
-            file_name = file_name['<file_name>']
-            status_messages = logic.load_data_txt(file_name, App.dojo)
-            print(status_messages)
-
-
+    
 
 if __name__ == '__main__':
     print(__doc__)
