@@ -255,7 +255,7 @@ def reallocate_person(room_name, person_id, dojo):
                 find_person = person
                 find_person_type = type_person
                 break
-    if not find_person:
+    if not find_person or person_id < 0:
         return "Person not found"
 
     #get the room brute force

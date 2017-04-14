@@ -6,7 +6,8 @@ Usage:
     print_room <room_name>
     print_allocations <filename>
     print_unallocated <filename>
-    load_people <filename>
+    reallocate_person <person_identifier> <new_room_name>
+    load_people <person_identifier> <new_room_name>
 
 Arguments:
     FELLOW|STAFF           Person type to create
