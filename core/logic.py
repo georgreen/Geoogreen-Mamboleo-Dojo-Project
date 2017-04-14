@@ -1,8 +1,6 @@
-from context import models
 from models import model
-import random
 
-
+from core import helpers
 def create_room(room_type, room_name, dojo):
     """
     input : room_type -> string represent type of room_type
@@ -98,32 +96,6 @@ def add_person(names, person_type, wants_livingspace = 'N'):
     new_person.office = False
     return new_person
 
-
-def choose_office_random(dojo):
-    """
-    choose an office at random
-    """
-    number_of_offices = len(dojo.office)
-    if number_of_offices > 0:
-        index = random.randrange(number_of_offices)
-    else:
-        return "NoRoomException"
-    return index
-
-def choose_living_space_random(dojo):
-    """
-    choose a livingspace at random
-    """
-    number_of_livingspace = len(dojo.livingspace)
-    if number_of_livingspace > 0:
-        index = random.randrange(number_of_livingspace)
-    else:
-        return "NoRoomException"
-    return index
-
-class NoRoomException(Exception):
-    pass
-
 def helper_addsperson_chooseroom(dojo, first_name, second_name, person_type, choice_live = 'N'):
     """
     add a person to dojo and allocates office and [livingspace]
@@ -145,7 +117,7 @@ def helper_addsperson_chooseroom(dojo, first_name, second_name, person_type, cho
     if isinstance(new_person, model.Staff):
         #add to dojo
         dojo.add_staff(new_person)
-        index_office = choose_office_random(dojo)
+        index_office = helpers.choose_office_random(dojo)
         if index_office != "NoRoomException" and \
         not dojo.get_office_at_index(index_office).is_full():
 
@@ -163,8 +135,8 @@ def helper_addsperson_chooseroom(dojo, first_name, second_name, person_type, cho
         dojo.add_fellow(new_person)
 
         #generate random indexes
-        index_livingspace = choose_living_space_random(dojo)
-        index_office = choose_office_random(dojo)
+        index_livingspace = helpers.choose_living_space_random(dojo)
+        index_office = helpers.choose_office_random(dojo)
 
         #assign fellow office
         if index_office != "NoRoomException" and \
@@ -202,7 +174,6 @@ def helper_addsperson_chooseroom(dojo, first_name, second_name, person_type, cho
         status_messages['message'] = [msg]
 
     return status_messages
-
 
 def people_inroom(dojo, room_name):
     """
@@ -249,21 +220,23 @@ def list_unallocated(dojo, file_name = ''):
     return unallocated
 
 def save_data_txt(file_name, raw_data, mode = 'wt'):
-    data = []
-    for person in raw_data:
-        if isinstance(person, model.Fellow):
-            wants_living = 'N'
-            if person.wants_living:
-                wants_living = 'Y'
-            user_info = person.name.upper() + "  FELLOW  " + wants_living
+    helpers.save_data_txt(file_name, raw_data, mode)
+
+
+def load_data_txt(file_name, dojo):
+    status_data = []
+    loaded_data = helpers.load_data_txt(file_name)
+    for user_info in loaded_data:
+        if len(user_info) > 2 and len(user_info) < 4:
+            first_name, second_name, person_type = loaded_data[: 3]
+            choice_live = 'N'
+            if len(user_info) == 4:
+                choice_live = loaded_data[3]
+            status = helper_addsperson_chooseroom(dojo, first_name, second_name, person_type, choice_live)
+            status_data.append(status)
         else:
-            user_info = person.name.upper() + "  STAFF  "
-        if user_info not in data:
-            data.append(user_info)
-    file_out = open(file_name + '.txt', mode)
-    for name in data:
-        print(name, file=file_out)
-    file_out.close()
+            status_data.append({'status':'failed', 'message': user_info + ": was not Added, Invalid format" })
+    return status
 
 def reallocate_person(room_name, person_id, dojo):
     find_person = None
@@ -273,8 +246,8 @@ def reallocate_person(room_name, person_id, dojo):
     find_current_room = None
     try:
         person_id = int(person_id)
-    except Exception:
-        return "Insert Valid Id's: Intergers only"
+    except ValueError:
+        return "Invalid  User Id"
     #get the person and their type brute force
     for type_person in dojo.person:
         for person in dojo.person[type_person]:
@@ -309,7 +282,7 @@ def reallocate_person(room_name, person_id, dojo):
                 find_current_room.remove(find_person)
 
             #allocate living space
-            index = choose_living_space_random(dojo)
+            index = helpers.choose_living_space_random(dojo)
             new_room = dojo.rooms['livingspace'][index]
             new_room.add_occupant(find_person)
             find_person.livingspace = True
@@ -323,7 +296,7 @@ def reallocate_person(room_name, person_id, dojo):
     if find_room_type == 'offices':
         if find_current_room:
             find_current_room.remove(find_person)
-        index= choose_office_random(dojo)
+        index = helpers.choose_office_random(dojo)
         new_room = dojo.rooms['offices'][index]
         new_room.add_occupant(find_person)
         find_person.office = True
