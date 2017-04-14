@@ -1,5 +1,10 @@
-from context import models
+#from context import models
+import models
+import views
+import core
 
+from models import model
+from core import logic
 from models import model
 
 
