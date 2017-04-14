@@ -17,15 +17,19 @@ Options:
 '''
 
 
-from context import models, views, core, os
-from core import logic
-from views import ui
+import os
 from docopt import docopt, DocoptExit
 import cmd
 from models import model
 from pyfiglet import figlet_format
 from termcolor import cprint, colored
+<<<<<<< HEAD
 
+=======
+import csv
+from views import ui
+from core import logic
+>>>>>>> cbbba5c70130efefcf48527b3f502bcce35f1f56
 
 
 
@@ -225,10 +229,10 @@ class App(cmd.Cmd):
     def do_load_people(self, args):
         """
         Usage:
-            load_people <person_identifier> <new_room_name>
+            load_people <file_name>
         """
         try:
-            reallocate_information = docopt(self.do_reallocate_person.__doc__, args)
+            file_name = docopt(self.do_reallocate_person.__doc__, args)
 
         except DocoptExit as e:
             ui.print_message(e)
@@ -236,7 +240,9 @@ class App(cmd.Cmd):
         except KeyboardInterrupt:
             pass
         else:
-            ui.print_message("Not Implemeted")
+            file_name = file_name['<file_name>']
+            status_messages = logic.load_data_txt(file_name, App.dojo)
+            print(status_messages)
 
 
 
