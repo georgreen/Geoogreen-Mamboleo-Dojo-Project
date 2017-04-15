@@ -48,7 +48,10 @@ def save_data_txt(file_name, raw_data, mode = 'wt'):
 def load_data_txt(file_name):
     data = []
     raw_data = open(file_name, 'rt')
-    data_in = csv.reader(raw_data)
-    data = [row[0].split() for row in data if (len(row) > 0 and not row[0].split() in data)]
-    raw_data.close()
+    while True:
+        store = []
+        line = raw_data.readline()
+        if not line:
+            break
+        data.append(line.split())
     return data
