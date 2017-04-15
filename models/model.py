@@ -6,6 +6,7 @@ class Room():
     #keep track of all rooms created
     number_of_rooms = 0
     takken_names = []
+
     def __init__(self, max_occupants, name):
         '''
         return Room with no occupats
@@ -16,7 +17,6 @@ class Room():
         self.occupants = []
         self.__id = Room.number_of_rooms
         Room.takken_names.append(name)
-
 
     @property
     def current_population(self):
@@ -51,13 +51,12 @@ class Room():
             del self.occupants[self.occupants.index(person)]
             return True
         return False
+        
     def get_occupants(self):
         '''
         returns a generator with all occupants
         '''
         return self.occupants[:]
-
-
 
 
 #create a Office

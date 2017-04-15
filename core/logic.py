@@ -110,7 +110,8 @@ def helper_addsperson_chooseroom(dojo, first_name, second_name, person_type, cho
         msg = "{} {} {} has been successfully added.".format(person_type, first_name, second_name)
         status_messages['message'].append(msg)
     except TypeError:
-        msg = ""
+        status_messages['status'] = 'Failed'
+        msg = "{} {} {} has not added.".format(person_type, first_name, second_name)
         status_messages['message'].append(msg)
         return status_messages
 
@@ -225,18 +226,21 @@ def save_data_txt(file_name, raw_data, mode = 'wt'):
 
 def load_data_txt(file_name, dojo):
     status_data = []
-    loaded_data = helpers.load_data_txt(file_name)
+    try:
+        loaded_data = helpers.load_data_txt(file_name)
+    except FileNotFoundError:
+        return {'status':'failed', 'message': 'File Not Found Error' }
     for user_info in loaded_data:
-        if len(user_info) > 2 and len(user_info) < 4:
-            first_name, second_name, person_type = loaded_data[: 3]
+        if len(user_info) > 2 and len(user_info) < 5:
+            first_name, second_name, person_type = user_info[:3]
             choice_live = 'N'
             if len(user_info) == 4:
-                choice_live = loaded_data[3]
+                choice_live = user_info[3]
             status = helper_addsperson_chooseroom(dojo, first_name, second_name, person_type, choice_live)
             status_data.append(status)
         else:
-            status_data.append({'status':'failed', 'message': user_info + ": was not Added, Invalid format" })
-    return status
+            status_data.append({'status':'failed', 'message': ' '.join(user_info) + ": was not Added, Invalid format" })
+    return status_data
 
 def reallocate_person(room_name, person_id, dojo):
     find_person = None
