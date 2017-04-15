@@ -7,7 +7,7 @@ Usage:
     print_allocations <filename>
     print_unallocated <filename>
     reallocate_person <person_identifier> <new_room_name>
-    load_people <person_identifier> <new_room_name>
+    load_people <filename>
 
 Arguments:
     FELLOW|STAFF           Person type to create
@@ -28,9 +28,8 @@ from views import ui
 from core import logic
 
 
-
 class App(cmd.Cmd):
-    #my shell promt format
+    # my shell promt format
     os.system('clear')
     cprint(figlet_format("Office LivingSpace Allocation System " ), 'white', attrs=['bold'])
     prompt = "INPUT $ > "
@@ -43,6 +42,7 @@ class App(cmd.Cmd):
         top
         '''
         os.system('clear')
+
     def do_quit(self, args):
         '''
         Usage:
@@ -51,36 +51,32 @@ class App(cmd.Cmd):
         cprint(figlet_format("GoodBye!"), 'white', attrs=['bold'])
         exit(0)
 
-    def do_create_room(self,args):
+    def do_create_room(self, args):
         """
         Usage:
            create_room <room_type> <room_name>...
         """
-        #alist of all status message form create room
+        # alist of all status message form create room
         status_messages = []
 
         try:
             room_information = docopt(self.do_create_room.__doc__, args)
-
         except DocoptExit as e:
             ui.print_message(e)
-            #call view to display Error message
         except KeyboardInterrupt:
             pass
         else:
             for name in room_information['<room_name>']:
                 try:
-                    #call helper to create this
+                    # call helper to create this
                     status_messages.append(logic.helper_create_and_addroom(App.dojo,room_information['<room_type>'], name))
                 except TypeError:
-                    #get view for this
+                    # get view for this
                     status_messages.append({'status' : 'fail', 'message' : "Room type: [{}] can not be  created!".format(room_information['<room_type>'])})
 
-
-        #call ui from views to display our status messages
+        # call ui from views to display our status messages
         for msg in status_messages:
             ui.print_message(msg['message'])
-
 
     def do_add_person(self, args):
         """
@@ -132,7 +128,6 @@ class App(cmd.Cmd):
                 ui.print_message("Room Not Found :-( ")
             ui.print_message(" ")
 
-
     def do_print_allocations(self, args):
         """
         Usage:
@@ -177,7 +172,7 @@ class App(cmd.Cmd):
 
         except DocoptExit as e:
             ui.print_message(e)
-            #call view to display Error message
+            # call view to display Error message
         except KeyboardInterrupt:
             pass
         else:
@@ -190,7 +185,7 @@ class App(cmd.Cmd):
                 ui.print_message('      LIST OF UNALLOCATED PEOPLE')
                 ui.print_message("*" * 40)
 
-                #build display message
+                # build display message
                 if len(unallocated_person) > 0:
                     user_info = ''
                     for person in unallocated_person:
@@ -214,16 +209,14 @@ class App(cmd.Cmd):
         """
         try:
             reallocate_information = docopt(self.do_reallocate_person.__doc__, args)
-
         except DocoptExit as e:
             ui.print_message(e)
-            #call view to display Error message
         except KeyboardInterrupt:
             pass
         else:
             room_name = reallocate_information['<new_room_name>']
             person_id = reallocate_information['<person_id>']
-            status = logic.reallocate_person(room_name, person_id , App.dojo)
+            status = logic.reallocate_person(room_name, person_id, App.dojo)
             ui.print_message(status)
 
     def do_load_people(self, args):
@@ -236,8 +229,6 @@ class App(cmd.Cmd):
 
         except DocoptExit as e:
             ui.print_message(e)
-            return
-            #call view to display Error message
         except KeyboardInterrupt:
             pass
         else:
@@ -248,6 +239,8 @@ class App(cmd.Cmd):
                 for message in status['message']:
                     ui.print_message(message)
                 print()
+
+
 if __name__ == '__main__':
     print(__doc__)
     App().cmdloop()

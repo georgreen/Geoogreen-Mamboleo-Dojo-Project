@@ -1,14 +1,9 @@
-#from context import models
-import models
-import views
-import core
-
+from context import models, views, core
 from models import model
 from core import logic
 from models import model
-
-
 import unittest
+
 
 class test_Rooms(unittest.TestCase):
     """
@@ -32,7 +27,7 @@ class test_Rooms(unittest.TestCase):
         self.assertIsInstance(self.room, model.Room)
         self.assertIsInstance(self.room1, model.Room)
 
-    #covers max_population > 0
+    # covers max_population > 0
     def test_Room_max_occupation(self):
         self.assertEqual(20, self.room.max_occupants)
 
@@ -81,7 +76,6 @@ class test_person(unittest.TestCase):
         self.fellow1 = model.Fellow("fellow1")
         self.fellow2 = model.Fellow("fellow2", True)
 
-
         self.staff1 = model.Staff("staff1")
         self.staff2 = model.Staff("staff2")
 
@@ -93,7 +87,6 @@ class test_person(unittest.TestCase):
 
         self.fellow2.office = self.office1
         self.fellow2.livingspace = True
-
 
     def test_person_instance(self):
         new_person = model.Person("new_person")
@@ -146,7 +139,7 @@ class test_dojo(unittest.TestCase):
              -> name : duplicates
              -->  bad types
         @methods
-        is_staff, remove_office, remove_livingspace, remove_fellow, remove_staff
+        is_staff,remove_office, remove_livingspace, remove_fellow, remove_staff
         input : -> data bot in dojo, data in dojo,
                ->   bad types, double
 
@@ -168,7 +161,7 @@ class test_dojo(unittest.TestCase):
         self.person3 = model.Staff("Ndiga")
         self.person4 = model.Staff("Someone")
 
-        #############update dojo with info###########
+        # update dojo with info
         self.dojo1.add_office(self.room)
         self.dojo1.add_office(self.room2)
         self.dojo1.add_livingspace(self.room3)
@@ -176,57 +169,58 @@ class test_dojo(unittest.TestCase):
         self.dojo1.add_staff(self.person3)
         self.dojo1.add_staff(self.person4)
 
-
-    #test badtype as name input
+    # test badtype as name input
     def test_badtypes_name(self):
         with self.assertRaises(TypeError):
             model.Dojo([])
         with self.assertRaises(TypeError):
             model.Dojo(1)
 
-    #test non-stanard input on iput -> name
+    # test non-stanard input on iput -> name
     def test_whitespace_ascii_name(self):
         with self.assertRaises(TypeError):
-             model.Dojo("  ")
+            model.Dojo("  ")
         with self.assertRaises(TypeError):
-             model.Dojo('@#####')
-
+            model.Dojo('@#####')
 
         self.assertEqual('@#####F', model.Dojo('@#####F').name)
         self.assertEqual("Hello", model.Dojo("Hello      ").name)
 
-    #test making duplicate dojo
+    # test making duplicate dojo
     def test_duplicate_name(self):
         with self.assertRaises(model.DuplicateError):
             model.Dojo("Andela_kenya")
 
-    #covers len(name) > 0
+    # covers len(name) > 0
     def test_name_len_positive(self):
-        self.assertIsInstance( model.Dojo("my_cool_name"), model.Dojo)
-    #cover len(name) == 0, name = ''
+        self.assertIsInstance(model.Dojo("my_cool_name"), model.Dojo)
+
+    # cover len(name) == 0, name = ''
     def test_name_len_zero(self):
         with self.assertRaises(TypeError):
             model.Dojo('')
 
-
-    #cover is_staff
+    # cover is_staff
     def test_is_staff(self):
         self.assertTrue(self.dojo1.is_staff(self.person3))
         self.assertFalse(self.dojo1.is_staff(model.Staff("stranger")))
-    #cover_remove_office
+
+    # cover_remove_office
     def test_remove_office(self):
         self.dojo1.remove_office(self.room)
         self.assertFalse(self.room in self.dojo1.office)
 
-    #covers remove_livingspace
+    # covers remove_livingspace
     def test_remove_livingspace(self):
         self.dojo1.remove_livingspace(self.room3)
         self.assertFalse(self.room3 in self.dojo1.livingspace)
-    #covers remove_staff
+
+    # covers remove_staff
     def test_remove_staff(self):
         self.dojo1.remove_staff(self.person4)
         self.assertFalse(self.person4 in self.dojo1.staff)
-    #covers remove_fellow
+
+    # covers remove_fellow
     def test_remove_fellow(self):
         self.dojo1.remove_fellow(self.person2)
         self.assertFalse(self.person2 in self.dojo1.fellow)
