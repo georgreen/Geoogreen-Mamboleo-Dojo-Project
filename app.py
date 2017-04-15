@@ -154,7 +154,9 @@ class App(cmd.Cmd):
                     mode = 'at'
                 ui.print_message("Data saved succefully to file: " + file_name['<-o=FILE>'])
             else:
+                empty = True
                 for room_name in allocations:
+                    empty = False
                     ui.print_message("Room :" + room_name)
                     ui.print_message("_" * len("Room :" + room_name))
 
@@ -162,6 +164,8 @@ class App(cmd.Cmd):
                         ui.print_room_members(allocations[room_name])
                     else:
                         ui.print_message("Empty room :-( ")
+                if empty:
+                    ui.print_message("No Allocations are available")
 
     def do_print_unallocated(self, args):
         """
@@ -218,12 +222,32 @@ class App(cmd.Cmd):
             pass
         else:
             room_name = reallocate_information['<new_room_name>']
-            person_id = reallocate_information['<person_identifier>']
+            person_id = reallocate_information['<person_id>']
             status = logic.reallocate_person(room_name, person_id , App.dojo)
             ui.print_message(status)
 
-    
+    def do_load_people(self, args):
+        """
+        Usage:
+            load_people <file_name>
+        """
+        try:
+            file_name = docopt(self.do_load_people.__doc__, args)
 
+        except DocoptExit as e:
+            ui.print_message(e)
+            return
+            #call view to display Error message
+        except KeyboardInterrupt:
+            pass
+        else:
+            file_name = file_name['<file_name>']
+            status_messages = logic.load_data_txt(file_name, App.dojo)
+
+            for status in status_messages:
+                for message in status['message']:
+                    ui.print_message(message)
+                print()
 if __name__ == '__main__':
     print(__doc__)
     App().cmdloop()
