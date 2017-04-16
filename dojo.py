@@ -8,10 +8,14 @@ from views import ui, template
 from core import logic
 
 
-class App(cmd.Cmd):
+class Dojo(cmd.Cmd):
+    def __init__(self, name):
+        cmd.Cmd.__init__(self)
+        self.name = name
+        self.dojo = model.Dojo(self.name)
+
     # my shell promt format
     prompt = "INPUT $ > "
-    dojo = model.Dojo("Andela-Kenya")
     ui.print_welcome()
     ui.print_usage()
 
@@ -42,7 +46,7 @@ class App(cmd.Cmd):
         else:
             room_type = room_information['<room_type>']
             for name in room_information['<room_name>']:
-                status_message = logic.helper_create_and_addroom(App.dojo, room_type, name)
+                status_message = logic.helper_create_and_addroom(self.dojo, room_type, name)
 
                 # call ui from views to display our status messages
                 room_type = status_message['room_type']
@@ -67,7 +71,6 @@ class App(cmd.Cmd):
         Usage:
             add_person <firstname> <secondname> <person_type> [<choice>]
         """
-        status_messages = []
         try:
             person_information = docopt(self.do_add_person.__doc__, args)
 
@@ -79,11 +82,15 @@ class App(cmd.Cmd):
             wants_room = person_information['<choice>']
             person_type = person_information['<person_type>']
 
-            status_messages.append(logic.helper_addsperson_chooseroom(App.dojo,firstname, secondname, person_type, wants_room))
-
-        for messages in status_messages:
-            for message in messages['message']:
-                ui.print_message(message)
+            status = logic.helper_addsperson_chooseroom(self.dojo,firstname, secondname, person_type, wants_room)
+            print(status)
+            if status['status'] == 'Failed':
+                pass
+            elif status['status'] == 'ok':
+                if status['person_type'] == 'fellow':
+                    pass
+                elif status['person_type'] == 'staff':
+                    pass
 
     def do_print_room(self, args):
         """
@@ -98,7 +105,7 @@ class App(cmd.Cmd):
             ui.print_message("Room :" + room_name['<room_name>'])
             ui.print_message("_" * len("Room :" + room_name['<room_name>']))
             try:
-                occupants = logic.people_inroom(App.dojo, room_name['<room_name>'])
+                occupants = logic.people_inroom(self.dojo, room_name['<room_name>'])
                 if len(occupants) > 0:
                     ui.print_room_members(occupants)
                 else:
@@ -118,7 +125,7 @@ class App(cmd.Cmd):
         except DocoptExit as e:
             ui.print_message(e)
         else:
-            allocations = logic.dict_allocations(App.dojo)
+            allocations = logic.dict_allocations(self.dojo)
             if file_name['<-o=FILE>']:
                 mode = 'wt'
                 for raw_data in allocations.values():
@@ -153,7 +160,7 @@ class App(cmd.Cmd):
         except KeyboardInterrupt:
             pass
         else:
-            unallocated_person = logic.list_unallocated(App.dojo)
+            unallocated_person = logic.list_unallocated(self.dojo)
             if file_name['<-o=FILE>']:
                 logic.save_data_txt(file_name['<-o=FILE>'], unallocated_person)
                 ui.print_message("Data saved succefully to file: " + file_name['<-o=FILE>'])
@@ -193,7 +200,7 @@ class App(cmd.Cmd):
         else:
             room_name = reallocate_information['<new_room_name>']
             person_id = reallocate_information['<person_id>']
-            status = logic.reallocate_person(room_name, person_id, App.dojo)
+            status = logic.reallocate_person(room_name, person_id, self.dojo)
             ui.print_message(status)
 
     def do_load_people(self, args):
@@ -210,8 +217,7 @@ class App(cmd.Cmd):
             pass
         else:
             file_name = file_name['<file_name>']
-            status_messages = logic.load_data_txt(file_name, App.dojo)
-
+            status_messages = logic.load_data_txt(file_name, self.dojo)
             for status in status_messages:
                 for message in status['message']:
                     ui.print_message(message)
@@ -219,4 +225,4 @@ class App(cmd.Cmd):
 
 
 if __name__ == '__main__':
-    App().cmdloop()
+    Dojo("Andela-Kenya").cmdloop()
