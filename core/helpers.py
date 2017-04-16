@@ -1,7 +1,7 @@
-import csv
 import random
 
 from models import model
+
 
 def choose_office_random(dojo):
     """
@@ -12,7 +12,8 @@ def choose_office_random(dojo):
         index = random.randrange(number_of_offices)
     else:
         return "NoRoomException"
-    return index
+    return list(dojo.office)[index].name
+
 
 def choose_living_space_random(dojo):
     """
@@ -23,12 +24,14 @@ def choose_living_space_random(dojo):
         index = random.randrange(number_of_livingspace)
     else:
         return "NoRoomException"
-    return index
+    return list(dojo.livingspace)[index].name
+
 
 class NoRoomException(Exception):
     pass
 
-def save_data_txt(file_name, raw_data, mode = 'wt'):
+
+def save_data_txt(file_name, raw_data, mode='wt'):
     data = []
     for person in raw_data:
         if isinstance(person, model.Fellow):
@@ -45,10 +48,14 @@ def save_data_txt(file_name, raw_data, mode = 'wt'):
         print(name, file=file_out)
     file_out.close()
 
+
 def load_data_txt(file_name):
     data = []
     raw_data = open(file_name, 'rt')
-    data_in = csv.reader(raw_data)
-    data = [row[0].split() for row in data if (len(row) > 0 and not row[0].split() in data)]
-    raw_data.close()
+    while True:
+        store = []
+        line = raw_data.readline()
+        if not line:
+            break
+        data.append(line.split())
     return data

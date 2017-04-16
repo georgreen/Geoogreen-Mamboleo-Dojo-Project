@@ -13,8 +13,7 @@ def print_message(msg):
 def print_room_members(occupants):
     for member in occupants:
         print(member.name, end = ', ')
-
     print()
-    print()
+    
 def print_not_allocated(user_info):
         print(user_info)
