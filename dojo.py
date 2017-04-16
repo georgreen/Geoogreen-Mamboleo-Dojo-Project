@@ -1,54 +1,33 @@
 # -*- coding: utf-8 -*-
-'''
-Usage:
-    create room <room_type> <room_name> ...
-    add person <first_name> <last_name> <FELLOW>|<STAFF> [<wants_accommodation>]
-    print_room <room_name>
-    print_allocations <filename>
-    print_unallocated <filename>
-    reallocate_person <person_identifier> <new_room_name>
-    load_people <filename>
-
-Arguments:
-    FELLOW|STAFF           Person type to create
-    wants_accommodation    Specify if fellow wants a living space
-Options:
-    -h, --help           : To show the command's help messsage
-'''
-
-
 import os
 from docopt import docopt, DocoptExit
 import cmd
 from models import model
 from pyfiglet import figlet_format
-from termcolor import cprint, colored
-import csv
-from views import ui
+from views import ui, template
 from core import logic
 
 
 class App(cmd.Cmd):
     # my shell promt format
-    os.system('clear')
-    cprint(figlet_format("Office LivingSpace Allocation System " ), 'white', attrs=['bold'])
     prompt = "INPUT $ > "
     dojo = model.Dojo("Andela-Kenya")
     ui.print_welcome()
+    ui.print_usage()
 
     def do_top(self, args):
         '''
         Usage:
         top
         '''
-        os.system('clear')
+        ui.clear_console()
 
     def do_quit(self, args):
         '''
         Usage:
         quit
         '''
-        cprint(figlet_format("GoodBye!"), 'white', attrs=['bold'])
+        ui.print_exit()
         exit(0)
 
     def do_create_room(self, args):
@@ -56,27 +35,32 @@ class App(cmd.Cmd):
         Usage:
            create_room <room_type> <room_name>...
         """
-        # alist of all status message form create room
-        status_messages = []
-
         try:
             room_information = docopt(self.do_create_room.__doc__, args)
         except DocoptExit as e:
             ui.print_message(e)
-        except KeyboardInterrupt:
-            pass
         else:
+            room_type = room_information['<room_type>']
             for name in room_information['<room_name>']:
-                try:
-                    # call helper to create this
-                    status_messages.append(logic.helper_create_and_addroom(App.dojo,room_information['<room_type>'], name))
-                except TypeError:
-                    # get view for this
-                    status_messages.append({'status' : 'fail', 'message' : "Room type: [{}] can not be  created!".format(room_information['<room_type>'])})
+                status_message = logic.helper_create_and_addroom(App.dojo, room_type, name)
 
-        # call ui from views to display our status messages
-        for msg in status_messages:
-            ui.print_message(msg['message'])
+                # call ui from views to display our status messages
+                room_type = status_message['room_type']
+                room_name = status_message['room_name']
+                status = status_message['status']
+                messsage = None
+                color = None
+                fail = True
+                if status_message['status'] == 'ok':
+                    message = template.room_created_message
+                    fail = False
+                elif status_message['status'] == 'failed':
+                    message = template.room_typeerror_message
+                elif status_message['status'] == 'Duplicate name':
+                    message = template.room_dup_name_message
+                elif status_message['status'] == 'Invalid name':
+                    message = template.room_not_created_message
+                ui.print_template_room(message, room_type, room_name, fail=fail, status=status)
 
     def do_add_person(self, args):
         """
@@ -89,8 +73,6 @@ class App(cmd.Cmd):
 
         except DocoptExit as e:
             ui.print_message(e)
-        except KeyboardInterrupt:
-            pass
         else:
             firstname = person_information['<firstname>']
             secondname = person_information['<secondname>']
@@ -110,11 +92,8 @@ class App(cmd.Cmd):
         """
         try:
             room_name = docopt(self.do_print_room.__doc__, args)
-
         except DocoptExit as e:
             ui.print_message(e)
-        except KeyboardInterrupt:
-            pass
         else:
             ui.print_message("Room :" + room_name['<room_name>'])
             ui.print_message("_" * len("Room :" + room_name['<room_name>']))
@@ -138,8 +117,6 @@ class App(cmd.Cmd):
 
         except DocoptExit as e:
             ui.print_message(e)
-        except KeyboardInterrupt:
-            pass
         else:
             allocations = logic.dict_allocations(App.dojo)
             if file_name['<-o=FILE>']:
@@ -242,5 +219,4 @@ class App(cmd.Cmd):
 
 
 if __name__ == '__main__':
-    print(__doc__)
     App().cmdloop()
