@@ -37,27 +37,26 @@ def helper_create_and_addroom(dojo, room_type, room_name):
     uses create room to create a room
     adds's new room to dojo, if valid
     '''
-    status_messages = {'status': None, 'message': None}
-    new_room = create_room(room_type, room_name, dojo)
+    status_messages = {}
+    status_messages['status'] = None
+    status_messages['room_name'] = room_name
+    status_messages['room_type'] = room_type
+    new_room = None
+    try:
+        new_room = create_room(room_type, room_name, dojo)
+    except TypeError:
+        status_messages['status'] = 'failed'
 
-    if isinstance(new_room, model.Office):
-        # add to Dojo Office
+    if new_room == 'duplicates':
+        status_messages['status'] = 'Duplicate name'
+    elif new_room == 'Invalid name':
+        status_messages['status'] = 'Invalid name'
+    elif isinstance(new_room, model.Office):
         dojo.add_office(new_room)
         status_messages['status'] = 'ok'
-        status_messages['message'] = "An office called {} has been successfully created!".format(new_room.name)
     elif isinstance(new_room, model.LivingSpace):
-        #add to Dojo livingspace
         dojo.add_livingspace(new_room)
         status_messages['status'] = 'ok'
-        status_messages['message'] = "A LivingSpace called {} has been successfully created!".format(new_room.name)
-    elif new_room == 'duplicates':
-        # give some status messge
-        status_messages['status'] = 'Invalid name'
-        status_messages['message'] = "{} called {} can not be created!: Name already exists".format(room_type, room_name)
-    else:
-        status_messages['status'] = 'Invalid name'
-        status_messages['message'] = "{} called {} can not be created!:ERROR".format(room_type, room_name)
-
     return status_messages
 
 
@@ -72,7 +71,6 @@ def add_person(names, person_type, wants_livingspace='N'):
 
     # validate person_type
     person_type = person_type.lower().strip()
-
     if person_type not in ["fellow", "staff"]:
         raise TypeError
 
@@ -81,22 +79,21 @@ def add_person(names, person_type, wants_livingspace='N'):
     name2 = names[1].strip().lower()
     if not name1.isalnum() or not name2.isalnum():
         return "Invalid name"
-
     name = name1 + " " + name2
+
     # validate wants_livingspace
     wants_livingspace = wants_livingspace.strip().lower()
     if wants_livingspace not in 'yn':
         return "Invalid choice"
-
     choice = True if wants_livingspace == 'y' else False
 
     if person_type == 'staff':
         new_person = model.Staff(name)
         new_person.office = False
-        return new_person
-    new_person = model.Fellow(name, choice)
-    new_person.livingspace = False
-    new_person.office = False
+    else:
+        new_person = model.Fellow(name, choice)
+        new_person.livingspace = False
+        new_person.office = False
     return new_person
 
 
@@ -119,15 +116,15 @@ def helper_addsperson_chooseroom(dojo, first_name, second_name, person_type, cho
         status_messages['message'].append(msg)
         return status_messages
 
-    return allocate_room(new_person, dojo)
+    return allocate_room(new_person, dojo, status_messages)
 
 
-def allocate_room(new_person, dojo):
+def allocate_room(new_person, dojo, status_messages):
     """
     allocates a room to new_person
     """
 
-    status_messages = {'status': 'ok', 'message': []}
+    # status_messages = {'status': 'ok', 'message': []}
     if isinstance(new_person, model.Staff):
         # add to dojo
         dojo.add_staff(new_person)
