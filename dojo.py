@@ -3,7 +3,6 @@ import os
 from docopt import docopt, DocoptExit
 import cmd
 from models import model
-from pyfiglet import figlet_format
 from views import ui, template
 from core import logic
 
@@ -46,7 +45,7 @@ class Dojo(cmd.Cmd):
         else:
             room_type = room_information['<room_type>']
             for name in room_information['<room_name>']:
-                status_message = logic.helper_create_and_addroom(self.dojo, room_type, name)
+                status_message = logic.create_and_addroom(self.dojo, room_type, name)
 
                 # call ui from views to display our status messages
                 room_type = status_message['room_type']
@@ -73,7 +72,6 @@ class Dojo(cmd.Cmd):
         """
         try:
             person_information = docopt(self.do_add_person.__doc__, args)
-
         except DocoptExit as e:
             ui.print_message(e)
         else:
@@ -82,15 +80,40 @@ class Dojo(cmd.Cmd):
             wants_room = person_information['<choice>']
             person_type = person_information['<person_type>']
 
-            status = logic.helper_addsperson_chooseroom(self.dojo,firstname, secondname, person_type, wants_room)
-            print(status)
-            if status['status'] == 'Failed':
-                pass
-            elif status['status'] == 'ok':
-                if status['person_type'] == 'fellow':
-                    pass
-                elif status['person_type'] == 'staff':
-                    pass
+            status_messages = logic.addsperson_chooseroom(self.dojo,firstname, secondname, person_type, wants_room)
+            self.person_ui(status_messages)
+
+    def person_ui(self, status_messages):
+        status = status_messages['status']
+        name = status_messages['name']
+        person_type = status_messages['person_type']
+
+        if status == 'Failed':
+            message = template.person_not_created_message
+            ui.print_template_room(message, person_type, name, person_type, fail=True, status='Failed')
+        elif status == 'ok':
+            choice = status_messages['choice_live']
+            office = status_messages['office']
+            livingspace = status_messages['livingspace']
+
+            # dispaly person created flush
+            message = template.person_created_message
+            ui.print_template_room(message, person_type, name)
+
+            if office:
+                message = template.allocated_office_message
+                ui.print_template_room(message, name, office)
+            else:
+                message = template.not_allocated_office_message
+                ui.print_template_room(message, name, fail=True, status='No Room Available')
+
+            if person_type == 'fellow':
+                if livingspace and choice:
+                    message = template.allocated_living_message
+                    ui.print_template_room(message, name, livingspace)
+                elif choice and not livingspace:
+                    message = template.not_allocated_living_message
+                    ui.print_template_room(message, name, fail=True, status='No Room Available')
 
     def do_print_room(self, args):
         """
@@ -121,7 +144,6 @@ class Dojo(cmd.Cmd):
         """
         try:
             file_name = docopt(self.do_print_allocations.__doc__, args)
-
         except DocoptExit as e:
             ui.print_message(e)
         else:
@@ -141,6 +163,7 @@ class Dojo(cmd.Cmd):
 
                     if len(allocations[room_name]) > 0:
                         ui.print_room_members(allocations[room_name])
+                        print(" ")
                     else:
                         ui.print_message("Empty room :-( ")
                 if empty:
@@ -156,9 +179,6 @@ class Dojo(cmd.Cmd):
 
         except DocoptExit as e:
             ui.print_message(e)
-            # call view to display Error message
-        except KeyboardInterrupt:
-            pass
         else:
             unallocated_person = logic.list_unallocated(self.dojo)
             if file_name['<-o=FILE>']:
@@ -195,8 +215,6 @@ class Dojo(cmd.Cmd):
             reallocate_information = docopt(self.do_reallocate_person.__doc__, args)
         except DocoptExit as e:
             ui.print_message(e)
-        except KeyboardInterrupt:
-            pass
         else:
             room_name = reallocate_information['<new_room_name>']
             person_id = reallocate_information['<person_id>']
@@ -213,16 +231,23 @@ class Dojo(cmd.Cmd):
 
         except DocoptExit as e:
             ui.print_message(e)
-        except KeyboardInterrupt:
-            pass
         else:
             file_name = file_name['<file_name>']
             status_messages = logic.load_data_txt(file_name, self.dojo)
+
             for status in status_messages:
-                for message in status['message']:
-                    ui.print_message(message)
-                print()
+                if status['status'] == 'filenotfound':
+                    ui.print_message(status['message'])
+                elif status['status'] == 'illegalformat':
+                    ui.print_message(status['message'])
+                else:
+                    self.person_ui(status)
 
 
 if __name__ == '__main__':
-    Dojo("Andela-Kenya").cmdloop()
+    App = Dojo("Andela-Kenya")
+    try:
+        App.cmdloop()
+    except KeyboardInterrupt:
+        ui.print_exit()
+        exit(0)
