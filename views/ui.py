@@ -83,7 +83,7 @@ def print_template_room(template, *data, fail=False, status='ok'):
     if fail:
         symbole = unicode_cross
         color = 'red'
-        if status == 'Duplicate name':
+        if status == 'Duplicate name' or status == 'No Room Available':
             symbole = unicode_warning
             color = 'blue'
 
