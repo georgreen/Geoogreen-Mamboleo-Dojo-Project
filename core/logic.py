@@ -1,38 +1,10 @@
 from models import model
 from core import helpers
+# import fix for testing
+from core.helpers import *
 
 
-def create_room(room_type, room_name, dojo):
-    """
-    input : room_type -> string represent type of room_type
-    room_name -> string represent name of room_name
-            output : returns -> return Room with name -> room_name
-    Raises -> TypeError if room_name exists
-            'Invalid name ' if room_name exists
-    """
-    # remove excess white charcters
-    room_name_stripped = room_name.strip()
-    room_type_stripped = room_type.strip()
-
-    if len(room_type_stripped) == 0:
-        raise TypeError
-    room_type_cleaned = room_type_stripped
-
-    if len(room_name_stripped) == 0:
-        return 'Invalid name'
-    room_name_cleaned = room_name_stripped
-
-    # map room_type to respective data type
-    datatype = {'office': model.Office, 'livingspace': model.LivingSpace}
-
-    if not room_type_cleaned.lower() in datatype:
-        raise TypeError
-    if room_name_cleaned in dojo.takken_names:
-        return 'duplicates'
-    return datatype[room_type_cleaned.lower()](room_name_cleaned)
-
-
-def helper_create_and_addroom(dojo, room_type, room_name):
+def create_and_addroom(dojo, room_type, room_name):
     '''
     uses create room to create a room
     adds's new room to dojo, if valid
@@ -60,56 +32,24 @@ def helper_create_and_addroom(dojo, room_type, room_name):
     return status_messages
 
 
-def add_person(names, person_type, wants_livingspace='N'):
-    """
-    input: firstname lastname Fellow/Staff [Y]
-    """
-    # validate fields data types
-    if not isinstance(names, tuple) or not isinstance(person_type, str) or\
-            not isinstance(wants_livingspace, str):
-        raise TypeError
-
-    # validate person_type
-    person_type = person_type.lower().strip()
-    if person_type not in ["fellow", "staff"]:
-        raise TypeError
-
-    # validate name
-    name1 = names[0].strip().lower()
-    name2 = names[1].strip().lower()
-    if not name1.isalnum() or not name2.isalnum():
-        return "Invalid name"
-    name = name1 + " " + name2
-
-    # validate wants_livingspace
-    wants_livingspace = wants_livingspace.strip().lower()
-    if wants_livingspace not in 'yn':
-        return "Invalid choice"
-    choice = True if wants_livingspace == 'y' else False
-
-    if person_type == 'staff':
-        new_person = model.Staff(name)
-        new_person.office = False
-    else:
-        new_person = model.Fellow(name, choice)
-        new_person.livingspace = False
-        new_person.office = False
-    return new_person
-
-
-def helper_addsperson_chooseroom(dojo, first_name, second_name, person_type, choice_live='N'):
+def addsperson_chooseroom(dojo, first_name, second_name, person_type, choice_live='N'):
     """
     add a person to dojo and allocates office and [livingspace]
     """
     # set up status message respond
     status_messages = {'status': None, 'person_type': person_type}
     status_messages['name'] = first_name + ' ' + second_name
+
+    choice = 'Y'
+    if not choice_live or choice_live.lower() not in 'y':
+        choice = 'N'
+        choice_live = False
+    else:
+        choice_live = True
     status_messages['choice_live'] = choice_live
 
-    if not choice_live:
-        choice_live = 'N'
     try:
-        new_person = add_person((first_name, second_name), person_type, choice_live)
+        new_person = add_person((first_name, second_name), person_type, choice)
         status_messages['status'] = 'ok'
         new_person.office = None
     except TypeError:
@@ -145,44 +85,6 @@ def allocate_room(new_person, dojo):
     status_messages['office'] = allocate_office(new_person, dojo)
 
     return status_messages
-
-
-def allocate_office(new_person, dojo):
-    '''
-    allocates office to new person_type
-    Returns name of office if added else None
-    '''
-    name_office = None
-
-    name_office = helpers.choose_office_random(dojo)
-    office = dojo.get_office(name_office)
-    if name_office != "NoRoomException" and not office.is_full():
-        dojo.add_person_office(name_office, new_person)
-        new_person.office = True
-        name_office = office.name
-    else:
-        name_office = None
-
-    return name_office
-
-
-def allocate_livingspace(new_person, dojo):
-    '''
-    allocates livingspace to new_person
-    Returns name of living space if added else None
-    '''
-    name_livingspace = None
-
-    name_livingspace = helpers.choose_living_space_random(dojo)
-    livingspace = dojo.get_livingspace(name_livingspace)
-    if name_livingspace == "NoRoomException" or livingspace.is_full():
-        name_livingspace = None
-    elif new_person.wants_living:
-        dojo.add_fellow_living(name_livingspace, new_person)
-        new_person.livingspace = True
-        name_livingspace = livingspace.name
-
-    return name_livingspace
 
 
 def people_inroom(dojo, room_name):
@@ -225,8 +127,9 @@ def list_unallocated(dojo, file_name=''):
     for fellow in person['fellow'].values():
         allocated_living = fellow.is_allocated_living()
         allocated_office = fellow.is_allocated_office()
-        if not allocated_living or not allocated_office:
+        if not allocated_office or (not allocated_living and fellow.wants_living):
             unallocated.append(fellow)
+
     # go over staff
     for staff in person['staff'].values():
         if not staff.is_allocated_office():
@@ -246,17 +149,17 @@ def load_data_txt(file_name, dojo):
         else:
             raise FileNotFoundError
     except FileNotFoundError:
-        return [{'status': 'failed', 'message': ['File Not Found Error']}]
+        return [{'status': 'filenotfound', 'message': 'File Not Found Error'}]
     for user_info in loaded_data:
         if len(user_info) > 2 and len(user_info) < 5:
             first_name, second_name, person_type = user_info[:3]
             choice_live = 'N'
             if len(user_info) == 4:
                 choice_live = user_info[3]
-            status = helper_addsperson_chooseroom(dojo, first_name, second_name, person_type, choice_live)
+            status = addsperson_chooseroom(dojo, first_name, second_name, person_type, choice_live)
             status_data.append(status)
         else:
-            msg = {'status': 'failed', 'message': ' '.join(user_info) + ": was not Added, Invalid format"}
+            msg = {'status': 'illegalformat', 'message': ' '.join(user_info) + ": was not Added, Invalid format"}
             status_data.append(msg)
     return status_data
 
