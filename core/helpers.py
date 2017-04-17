@@ -1,6 +1,110 @@
 import random
-
 from models import model
+
+
+def create_room(room_type, room_name, dojo):
+    """
+    input : room_type -> string represent type of room_type
+    room_name -> string represent name of room_name
+            output : returns -> return Room with name -> room_name
+    Raises -> TypeError if room_name exists
+            'Invalid name ' if room_name exists
+    """
+    # remove excess white charcters
+    room_name_stripped = room_name.strip()
+    room_type_stripped = room_type.strip()
+
+    if len(room_type_stripped) == 0:
+        raise TypeError
+    room_type_cleaned = room_type_stripped
+
+    if len(room_name_stripped) == 0:
+        return 'Invalid name'
+    room_name_cleaned = room_name_stripped
+
+    # map room_type to respective data type
+    datatype = {'office': model.Office, 'livingspace': model.LivingSpace}
+
+    if not room_type_cleaned.lower() in datatype:
+        raise TypeError
+    if room_name_cleaned in dojo.takken_names:
+        return 'duplicates'
+    return datatype[room_type_cleaned.lower()](room_name_cleaned)
+
+
+def add_person(names, person_type, wants_livingspace='N'):
+    """
+    input: firstname lastname Fellow/Staff [Y]
+    """
+    # validate fields data types
+    if not isinstance(names, tuple) or not isinstance(person_type, str) or\
+            not isinstance(wants_livingspace, str):
+        raise TypeError
+
+    # validate person_type
+    person_type = person_type.lower().strip()
+    if person_type not in ["fellow", "staff"]:
+        raise TypeError
+
+    # validate name
+    name1 = names[0].strip().lower()
+    name2 = names[1].strip().lower()
+    if not name1.isalnum() or not name2.isalnum():
+        return "Invalid name"
+    name = name1 + " " + name2
+
+    # validate wants_livingspace
+    wants_livingspace = wants_livingspace.strip().lower()
+    if wants_livingspace not in 'yn':
+        return "Invalid choice"
+    choice = True if wants_livingspace == 'y' else False
+
+    if person_type == 'staff':
+        new_person = model.Staff(name)
+        new_person.office = False
+    else:
+        new_person = model.Fellow(name, choice)
+        new_person.livingspace = False
+        new_person.office = False
+    return new_person
+
+
+def allocate_office(new_person, dojo):
+    '''
+    allocates office to new person_type
+    Returns name of office if added else None
+    '''
+    name_office = None
+
+    name_office = choose_office_random(dojo)
+    office = dojo.get_office(name_office)
+    if name_office != "NoRoomException" and not office.is_full():
+        dojo.add_person_office(name_office, new_person)
+        new_person.office = True
+        name_office = office.name
+    else:
+        name_office = None
+
+    return name_office
+
+
+def allocate_livingspace(new_person, dojo):
+    '''
+    allocates livingspace to new_person
+    Returns name of living space if added else None
+    '''
+    name_livingspace = None
+
+    name_livingspace = choose_living_space_random(dojo)
+    livingspace = dojo.get_livingspace(name_livingspace)
+    if name_livingspace == "NoRoomException" or livingspace.is_full():
+        name_livingspace = None
+    elif new_person.wants_living:
+        dojo.add_fellow_living(name_livingspace, new_person)
+        new_person.livingspace = True
+        name_livingspace = livingspace.name
+
+    return name_livingspace
 
 
 def choose_office_random(dojo):
