@@ -128,12 +128,15 @@ def list_unallocated(dojo, file_name=''):
         allocated_living = fellow.is_allocated_living()
         allocated_office = fellow.is_allocated_office()
         if not allocated_office or (not allocated_living and fellow.wants_living):
-            unallocated.append(fellow)
+            fellow_inof = 'FELLOW ' + fellow.name.upper() + ' N'
+            if fellow.wants_living:
+                fellow_inof = fellow_inof[: -1] + ' Y'
+            unallocated.append(fellow_inof)
 
     # go over staff
     for staff in person['staff'].values():
         if not staff.is_allocated_office():
-            unallocated.append(staff)
+            unallocated.append('STAFF ' + staff.name.upper())
     return unallocated
 
 
@@ -149,7 +152,7 @@ def load_data_txt(file_name, dojo):
         else:
             raise FileNotFoundError
     except FileNotFoundError:
-        return [{'status': 'filenotfound', 'message': 'File Not Found Error'}]
+        return [{'status': 'filenotfound', 'message': 'File Not Found'}]
     for user_info in loaded_data:
         if len(user_info) > 2 and len(user_info) < 5:
             first_name, second_name, person_type = user_info[:3]
@@ -158,8 +161,8 @@ def load_data_txt(file_name, dojo):
                 choice_live = user_info[3]
             status = addsperson_chooseroom(dojo, first_name, second_name, person_type, choice_live)
             status_data.append(status)
-        else:
-            msg = {'status': 'illegalformat', 'message': ' '.join(user_info) + ": was not Added, Invalid format"}
+        elif len(user_info) > 0:
+            msg = {'status': 'illegalformat', 'message': ' '.join(user_info) + ": was not Added."}
             status_data.append(msg)
     return status_data
 
