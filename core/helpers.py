@@ -135,19 +135,11 @@ class NoRoomException(Exception):
     pass
 
 
-def save_data_txt(file_name, raw_data, mode='wt'):
-    data = []
-    for person in raw_data:
-        if isinstance(person, model.Fellow):
-            wants_living = 'N'
-            if person.wants_living:
-                wants_living = 'Y'
-            user_info = person.name.upper() + "  FELLOW  " + wants_living
-        else:
-            user_info = person.name.upper() + "  STAFF  "
-        if user_info not in data:
-            data.append(user_info)
-    file_out = open(file_name + '.txt', mode)
+def save_data_txt(file_name, data, mode='wt'):
+    if file_name[len(file_name) - 4:] != '.txt':
+        file_name = file_name + '.txt'
+
+    file_out = open(file_name, mode)
     for name in data:
         print(name, file=file_out)
     file_out.close()
