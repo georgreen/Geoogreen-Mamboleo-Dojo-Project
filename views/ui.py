@@ -82,12 +82,6 @@ def print_success(msg, status="Success"):
     print_message(msg, status=status, symbole=unicode_tick, color='green')
 
 
-def print_room_members(occupants):
-    for member in occupants:
-        print(member.name, end=', ')
-    print()
-
-
 def print_not_allocated(user_info):
         print(user_info)
 
@@ -110,7 +104,7 @@ def print_template(template, *data, fail=False, status='ok'):
     print(" " * padding, colored(status, color), colored(symbole, color))
 
 
-def room_ui(status_message):
+def createroom_ui(status_message):
     room_type = status_message['room_type']
     room_name = status_message['room_name']
     status = status_message['status']
@@ -166,10 +160,36 @@ def unallocated_ui(unallocated_person):
     print_message("*" * 40)
     print_message('      LIST OF UNALLOCATED PEOPLE')
     print_message("*" * 40)
-
     # build display message
     if len(unallocated_person) > 0:
         for user_info in unallocated_person:
             print_not_allocated(user_info)
     else:
-        print_message("Every one is allocated ;-)")
+        print_message("Every one is allocated ", symbole=unicode_winkface)
+
+
+def room_ui(room_name, occupants=None, found=True):
+    color = 'green'
+    if not found:
+        color = 'red'
+    print_message("Room :" + room_name, color=color)
+    print_message("_" * 20, color=color)
+    if found:
+        if len(occupants) > 0:
+            for member in occupants:
+                print(colored(member.name.capitalize(), 'green'), end=' ')
+            print(end='\n')
+        else:
+            print_message("Empty room", symbole=unicode_sadface, color='blue')
+    else:
+        print_error("Room not found", status='Not Found')
+    print(end='\n \n')
+
+
+def allocations_ui(allocations):
+    empty = True
+    for room_name in allocations:
+        empty = False
+        room_ui(room_name, allocations[room_name])
+    if empty:
+        print_message("No Allocations are available", color='yellow')
