@@ -128,9 +128,10 @@ def list_unallocated(dojo, file_name=''):
         allocated_living = fellow.is_allocated_living()
         allocated_office = fellow.is_allocated_office()
         if not allocated_office or (not allocated_living and fellow.wants_living):
-            fellow_inof = 'FELLOW ' + fellow.name.upper() + ' N'
+            fellow_inof = ' N'
             if fellow.wants_living:
-                fellow_inof = fellow_inof[: -1] + ' Y'
+                fellow_inof = ' Y'
+            fellow_inof = 'FELLOW ' + fellow.name.upper() + fellow_inof
             unallocated.append(fellow_inof)
 
     # go over staff
