@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import sys
 from docopt import docopt, DocoptExit
 import cmd
 from models import model
@@ -79,7 +80,7 @@ class Admin(cmd.Cmd):
         if file_name:
             mode = 'wt'
             for raw_data in allocations.values():
-                logic.save_data_txt(file_name, raw_data, mode)
+                logic.save_txt(file_name, raw_data, mode)
                 mode = 'at'
             ui.print_message("Data saved succefully to file: " + file_name)
         else:
@@ -94,7 +95,7 @@ class Admin(cmd.Cmd):
         file_name = file_name['<-o=FILE>']
         unallocated_person = logic.list_unallocated(self.dojo)
         if file_name:
-            logic.save_data_txt(file_name, unallocated_person)
+            logic.save_txt(file_name, unallocated_person)
             ui.print_success("Data saved succefully to file: " + file_name)
         else:
             ui.unallocated_ui(unallocated_person)
@@ -108,7 +109,7 @@ class Admin(cmd.Cmd):
         room_name = reallocate_information['<new_room_name>']
         person_id = reallocate_information['<person_id>']
         status = logic.reallocate_person(room_name, person_id, self.dojo)
-        ui.print_message(status)
+        ui.reallocate_ui(status)
 
     @argument_parser
     def do_load_people(self, file_name):
@@ -127,7 +128,7 @@ class Admin(cmd.Cmd):
             else:
                 ui.person_ui(status)
 
-    def do_top(self, args):
+    def do_clear(self, args):
         '''
         Usage:
         top
@@ -140,15 +141,25 @@ class Admin(cmd.Cmd):
         quit
         '''
         ui.print_exit()
-        exit(0)
+        return True
 
     def do_restart(self, args):
         '''
         Usage:
         restart
         '''
-        ui.clear_console()
-        os.system('python3 admin.py')
+        raise SystemRestartInterrupt
+
+    def do_EOF(self):
+        return True
+
+    def default(self, args):
+        ui.print_error(args, status='Command Does Not Exit')
+        ui.print_message('Press <TAB> key Twice to view all available COMMANDS')
+
+
+class SystemRestartInterrupt(Exception):
+    pass
 
 
 if __name__ == '__main__':
@@ -159,4 +170,6 @@ if __name__ == '__main__':
         App.cmdloop()
     except KeyboardInterrupt:
         ui.print_exit()
-        exit(0)
+    except SystemRestartInterrupt:
+        ui.clear_console()
+        os.system('python3 admin.py')
