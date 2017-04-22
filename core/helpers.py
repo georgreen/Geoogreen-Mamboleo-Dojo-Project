@@ -69,14 +69,14 @@ def add_person(names, person_type, wants_livingspace='N'):
     return new_person
 
 
-def allocate_office(new_person, dojo):
+def allocate_office(new_person, dojo, name_office=None):
     '''
     allocates office to new person_type
     Returns name of office if added else None
     '''
-    name_office = None
+    if not name_office:
+        name_office = choose_office_random(dojo)
 
-    name_office = choose_office_random(dojo)
     office = dojo.get_office(name_office)
     if name_office != "NoRoomException" and not office.is_full():
         dojo.add_person_office(name_office, new_person)
@@ -88,14 +88,14 @@ def allocate_office(new_person, dojo):
     return name_office
 
 
-def allocate_livingspace(new_person, dojo):
+def allocate_livingspace(new_person, dojo, name_livingspace=None):
     '''
     allocates livingspace to new_person
     Returns name of living space if added else None
     '''
-    name_livingspace = None
+    if not name_livingspace:
+        name_livingspace = choose_living_space_random(dojo)
 
-    name_livingspace = choose_living_space_random(dojo)
     livingspace = dojo.get_livingspace(name_livingspace)
     if name_livingspace == "NoRoomException" or livingspace.is_full():
         name_livingspace = None
@@ -103,6 +103,8 @@ def allocate_livingspace(new_person, dojo):
         dojo.add_fellow_living(name_livingspace, new_person)
         new_person.livingspace = True
         name_livingspace = livingspace.name
+    else:
+        name_livingspace = None
 
     return name_livingspace
 
@@ -135,19 +137,11 @@ class NoRoomException(Exception):
     pass
 
 
-def save_data_txt(file_name, raw_data, mode='wt'):
-    data = []
-    for person in raw_data:
-        if isinstance(person, model.Fellow):
-            wants_living = 'N'
-            if person.wants_living:
-                wants_living = 'Y'
-            user_info = person.name.upper() + "  FELLOW  " + wants_living
-        else:
-            user_info = person.name.upper() + "  STAFF  "
-        if user_info not in data:
-            data.append(user_info)
-    file_out = open(file_name + '.txt', mode)
+def save_data_txt(file_name, data, mode='wt'):
+    if file_name[len(file_name) - 4:] != '.txt':
+        file_name = file_name + '.txt'
+
+    file_out = open(file_name, mode)
     for name in data:
         print(name, file=file_out)
     file_out.close()
@@ -163,3 +157,20 @@ def load_data_txt(file_name):
             break
         data.append(line.split())
     return data
+
+
+def deallocate_livingspace(person, room):
+    if isinstance(person, model.Staff):
+        return 'Invalid Operation'
+    if person.is_allocated_living() and person.wants_living:
+        room.remove_occupant(person)
+        person.livingspace = False
+    elif not person.wants_living:
+        return 'Invalid Operation'
+    return 'Done'
+
+
+def deallocate_office(person, room):
+    room.remove_occupant(person)
+    person.office = False
+    return 'Done'
