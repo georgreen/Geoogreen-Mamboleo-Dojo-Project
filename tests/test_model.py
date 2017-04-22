@@ -1,7 +1,6 @@
 from context import models, views, core
 from models import model
 from core import logic
-from models import model
 import unittest
 
 
