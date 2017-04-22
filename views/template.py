@@ -12,3 +12,6 @@ not_allocated_office_message = "%s has not been allocated an office"
 
 allocated_living_message = "%s has been allocated a livingspace %s"
 not_allocated_living_message = "%s has not been allocated a livingspace"
+
+reallocate_person_message = "%s has been reallocated to %s: %s from %s"
+invalid_reallocation = "%s can not be reallocated to %s: %s"
