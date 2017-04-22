@@ -51,6 +51,7 @@ def addsperson_chooseroom(dojo, first_name, second_name, person_type, choice_liv
     try:
         new_person = add_person((first_name, second_name), person_type, choice)
         status_messages['status'] = 'ok'
+        status_messages['id'] = new_person.id
         new_person.office = None
     except TypeError:
         status_messages['status'] = 'Failed'
@@ -76,13 +77,13 @@ def allocate_room(new_person, dojo):
         return status_messages
     elif isinstance(new_person, model.Fellow):
         if new_person.wants_living:
-            status_messages['livingspace'] = allocate_livingspace(new_person, dojo)
+            status_messages['livingspace'] = allocate_livingspace(new_person, dojo=dojo)
         dojo.add_fellow(new_person)
         status_messages['person_type'] = 'fellow'
     else:
         dojo.add_staff(new_person)
         status_messages['person_type'] = 'staff'
-    status_messages['office'] = allocate_office(new_person, dojo)
+    status_messages['office'] = allocate_office(new_person, dojo=dojo)
 
     return status_messages
 
@@ -128,21 +129,17 @@ def list_unallocated(dojo, file_name=''):
         allocated_living = fellow.is_allocated_living()
         allocated_office = fellow.is_allocated_office()
         if not allocated_office or (not allocated_living and fellow.wants_living):
-            fellow_inof = ' N'
-            if fellow.wants_living:
-                fellow_inof = ' Y'
-            fellow_inof = 'FELLOW ' + fellow.name.upper() + fellow_inof
-            unallocated.append(fellow_inof)
+            unallocated.append(fellow)
 
     # go over staff
     for staff in person['staff'].values():
         if not staff.is_allocated_office():
-            unallocated.append('STAFF ' + staff.name.upper())
+            unallocated.append(staff)
     return unallocated
 
 
-def save_data_txt(file_name, raw_data, mode='wt'):
-    helpers.save_data_txt(file_name, raw_data, mode)
+def save_txt(file_name, raw_data, mode='wt'):
+    save_data_txt(file_name, raw_data, mode)
 
 
 def load_data_txt(file_name, dojo):
@@ -169,82 +166,86 @@ def load_data_txt(file_name, dojo):
 
 
 def reallocate_person(room_name, person_id, dojo):
-    find_person = None
-    find_room = None
-    current_rooms = None
 
+    person = room = None
+    status_messages = {'status': 'Fail'}
     try:
         person_id = int(person_id)
     except ValueError:
-        return "Invalid  User Id"
+        status_messages['message'] = "Invalid  User Id"
+        return status_messages
 
-    # get the person
-    find_person = dojo.get_person(person_id)
+    # get the person to be moved
+    person = dojo.get_person(person_id)
+    if not person or person_id < 0:
+        status_messages['message'] = "Person not found"
+        return status_messages
 
-    if not find_person or person_id < 0:
-        return "Person not found"
+    # get the room to be reallocated to
+    room_type = None
+    room_info = get_roomname_type(room_name, dojo)
+    if room_info['status'] != 'ok':
+        status_messages['message'] = "Room not found"
+        return status_messages
+    else:
+        room_name, room_type = room_info['in']
+        status_messages['current_room'] = room_name.name
 
-    # get the room
+    # find all current rooms allocated to person
+    current_rooms = dojo.get_person_room(person)
+    current_livingspace = current_office = None
+    for room in current_rooms:
+        if isinstance(room, model.Office):
+            current_office = room
+        elif isinstance(room, model.LivingSpace):
+            current_livingspace = room
+    status_messages['prev_office'] = current_office
+    status_messages['prev_livingspace'] = current_livingspace
+
+    deallocation = deallocate_person(room_type, person, current_office, current_livingspace)
+    status_messages['deallocation'] = deallocation
+    status_messages['name'] = person.name
+    status_messages['room_type'] = room_type
+
+    if deallocation != 'Invalid Operation':
+        name = room_name.name
+        status_messages['status'] = 'ok'
+        msg = None
+        if room_type == 'O':
+            msg = allocate_office(person, name_office=name, dojo=dojo)
+        elif person.wants_living:
+            msg = allocate_livingspace(person, name_livingspace=name, dojo=dojo)
+            status_messages['choice'] = person.wants_living
+        if not msg:
+            status_messages['status'] = 'Invalid Operation'
+    else:
+        status_messages['status'] = 'Invalid Operation'
+
+    return status_messages
+
+
+def deallocate_person(room_type, person, office=None, livingspace=None):
+    deallocation = None
+    if room_type == 'O' and office:
+        deallocation = deallocate_office(person, office)
+    elif room_type == 'L' and livingspace:
+        deallocation = deallocate_livingspace(person, livingspace)
+    elif room_type == 'L' and isinstance(person, model.Staff):
+        deallocation = 'Invalid Operation'
+
+    return deallocation
+
+
+def get_roomname_type(room_name, dojo):
+    status_messages = {}
     room_name = room_name.strip().lower()
-    current_livingspace = None
-    current_office = None
     if room_name not in dojo.takken_names:
-        return "Room not found"
+        status_messages['status'] = "Room not found"
     else:
         office = dojo.get_office(room_name.strip().lower())
         livingspace = dojo.get_livingspace(room_name.strip().lower())
 
-        # we can only reallocate one room at a time
-        find_room = office if office else livingspace
-
-        # find all current rooms allocated to person
-        current_rooms = dojo.get_person_room(find_person)
-        for room in current_rooms:
-            if isinstance(room, model.Office):
-                current_office = room
-            elif isinstance(room, model.LivingSpace):
-                current_livingspace = room
-
-    # handle deallocating fellow from livingspaces
-    # contain current room from current rooms
-    current_room = None
-    if isinstance(find_person, model.Fellow):
-        if isinstance(find_room, model.LivingSpace):
-            # check to see if fellow what's living space
-            if not find_person.wants_living:
-                return "Invalid Operation don't want living space"
-            # switch current room to living space
-            current_room = current_livingspace
-
-            # remove them in previoius room
-            if find_person.is_allocated_living():
-                current_room.remove_occupant(find_person)
-            # allocate to new room
-            if not find_room.is_full():
-                find_room.add_occupant(find_person)
-                find_person.livingspace = True
-                return "successfully added to livingspace"
-            else:
-                return "Room full"
-
-        else:
-            # switch current room to office
-            current_room = current_office
-
-    # staff not allowed to have living space
-    if isinstance(find_person, model.Staff):
-        # return invalid if current room is None
-        if not current_room:
-            return "Invalid operations"
-
-    # handle office deallocation both staff and fellow
-    if isinstance(find_room, model.Office):
-        if current_room:
-            current_room.remove_occupant(find_person)
-        if not find_room.is_full():
-            find_room.add_occupant(find_person)
-            find_person.office = True
-            return "Succesfully added to Office"
-        else:
-            return "Room full"
-    return 'Error rellocation failed'
+        # we can only reallocate one room at a time office or livingspace
+        status_messages['in'] = (office, 'O') if office else (livingspace, 'L')
+        status_messages['status'] = 'ok'
+    return status_messages
