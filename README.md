@@ -20,6 +20,9 @@ An employee can either be a `staff` or a `fellow`. Staff can only be assigned of
 * Create a virtual enviroment <br/>
 * Find the instructions for installing and using a virtual environment and virtualenv wrapper [here](http://docs.python-guide.org/en/latest/dev/virtualenvs/).
 * Git Clone this repo to your local machine.
+```
+git clone https://github.com/georgreenmanu/Geoogreen-Mamboleo-Dojo-Project.git
+```
 
 
 ### Prerequisites
@@ -30,10 +33,10 @@ See requirements.txt
 You have to install python3 to run this app
 
 ### Installing
-After cloning the repo , cd to the folder.
+After cloning the repo , cd to the folder, activate your virtual enviroment then:
 
 ```
-make install
+pip install -r requirements.txt
 ``` 
 Run the above command to install the app and required dependencies.
 
@@ -85,11 +88,6 @@ You can now interact with application by entering the commands displayed above. 
 nosetests
 
 nosetests --with-coverage  
-```
-
-```
-Automating test: make test
-
 ```
 To run tests run the command above : Require's nosetests
 
