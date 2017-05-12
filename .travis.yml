@@ -1,11 +1,11 @@
 language: python
 python:
-    - "3.5"
-install: 
+    - "3.6.1"
+install:
     - "pip install -r requirements.txt --use-mirrors"
     - "pip install coverage"
     - "pip install coveralls"
-script: 
-    - "coverage run --source=tests pytest tests"
+script:
+    - "coverage run --source=tests nosetestst tests"
 after_success:
     coveralls
