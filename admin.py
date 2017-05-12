@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
+
 import os
-import sys
 from docopt import docopt, DocoptExit
 import cmd
 from models import model
-from views import ui, template
+from views import ui
 from core import logic
 
 
@@ -53,7 +53,8 @@ class Admin(cmd.Cmd):
         wants_room = person_information['<choice>']
         person_type = person_information['<person_type>']
 
-        status_messages = logic.addsperson_chooseroom(self.dojo, firstname, secondname, person_type, wants_room)
+        status_messages = logic.addsperson_chooseroom(self.dojo, firstname,secondname, person_type, wants_room)
+
         ui.person_ui(status_messages)
 
     @argument_parser
@@ -155,7 +156,7 @@ class Admin(cmd.Cmd):
 
     def default(self, args):
         ui.print_error(args, status='Command Does Not Exit')
-        ui.print_message('Press <TAB> key Twice to view all available COMMANDS')
+        ui.print_message('Press TAB key Twice to view all available COMMANDS')
 
 
 class SystemRestartInterrupt(Exception):
