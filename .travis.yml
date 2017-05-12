@@ -6,6 +6,6 @@ install:
     - "pip install coverage"
     - "pip install coveralls"
 script:
-    - "coverage run --source=tests nosetestst tests"
+    - "coverage run --source=tests nosetests tests"
 after_success:
     coveralls
