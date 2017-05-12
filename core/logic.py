@@ -90,7 +90,8 @@ def allocate_room(new_person, dojo):
 
 def people_inroom(dojo, room_name):
     """
-    returns the names of all the people in room_name
+    input: room_name and dojo
+    returns: the names of all the people in room_name
     """
     room_name = room_name.strip()
     rooms = list(dojo.office) + list(dojo.livingspace)
@@ -106,6 +107,7 @@ class NotFoundException(Exception):
 
 def dict_allocations(dojo):
     """
+    input: dojo
     returns a dict of allocations
     """
     allocations = {}
@@ -118,6 +120,7 @@ def dict_allocations(dojo):
 
 def list_unallocated(dojo, file_name=''):
     """
+    input: dojo & [file_name]
     returns a list of unallocated people to the screen
     if file_name is specified values are saved to file_name.txt
     """
