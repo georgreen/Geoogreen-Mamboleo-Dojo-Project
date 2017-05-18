@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
-
 import cmd
 import os
 
-from core import logic
 from docopt import DocoptExit, docopt
+
+from core import logic
 from models import model
 from views import ui
 
@@ -54,9 +53,9 @@ class Admin(cmd.Cmd):
         wants_room = person_information['<choice>']
         person_type = person_information['<person_type>']
 
-        status_messages = logic.addsperson_chooseroom(self.dojo, firstname,secondname, person_type, wants_room)
-
-        print(status_messages)
+        status_messages = logic.addsperson_chooseroom(self.dojo,
+                                                      firstname, secondname,
+                                                      person_type, wants_room)
         ui.person_ui(status_messages)
 
     @argument_parser
@@ -134,16 +133,28 @@ class Admin(cmd.Cmd):
     @argument_parser
     def load_state(self, args):
         """
+        Args:
+        param1 (str): absolute path specify a database
+
+        Returns:
+        None: The return value.
+
         Usage:
-             load_state <database_path>
+             load_state [‐‐db=sqlite_database]
         """
         pass
 
     @argument_parser
-    def save(self, args):
+    def save_state(self, args):
         """
+        Args:
+        param1 (str): name for database 
+
+        Returns:
+        None: The return value.
+
         Usage:
-             save [<model>]
+             save <sqlite_database>
         """
         pass
 
