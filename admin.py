@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import os
-from docopt import docopt, DocoptExit
 import cmd
+import os
+
+from core import logic
+from docopt import DocoptExit, docopt
 from models import model
 from views import ui
-from core import logic
 
 
 class Admin(cmd.Cmd):
@@ -37,9 +38,9 @@ class Admin(cmd.Cmd):
         Usage:
            create_room <room_type> <room_name>...
         """
-        room_type = room_information['<room_type>']
+        room_t = room_information['<room_type>']
         for name in room_information['<room_name>']:
-            status_message = logic.create_and_addroom(self.dojo, room_type, name)
+            status_message = logic.create_and_addroom(self.dojo, room_t, name)
             ui.createroom_ui(status_message)
 
     @argument_parser
@@ -55,6 +56,7 @@ class Admin(cmd.Cmd):
 
         status_messages = logic.addsperson_chooseroom(self.dojo, firstname,secondname, person_type, wants_room)
 
+        print(status_messages)
         ui.person_ui(status_messages)
 
     @argument_parser
@@ -128,6 +130,38 @@ class Admin(cmd.Cmd):
                 ui.print_warning(status['message'], status='Invalid format')
             else:
                 ui.person_ui(status)
+
+    @argument_parser
+    def load_state(self, args):
+        """
+        Usage:
+             load_state <database_path>
+        """
+        pass
+
+    @argument_parser
+    def save(self, args):
+        """
+        Usage:
+             save [<model>]
+        """
+        pass
+
+    @argument_parser
+    def remove_person(self, args):
+        """
+        Usage:
+            remove_person <ID>
+        """
+        pass
+
+    @argument_parser
+    def remove_room(self, args):
+        """
+        Usage:
+            remove_room <room_name>
+        """
+        pass
 
     def do_clear(self, args):
         '''
