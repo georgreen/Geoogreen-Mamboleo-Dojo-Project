@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-
-import cmd
 import os
-
-from core import logic
-from docopt import DocoptExit, docopt
+import sys
+from docopt import docopt, DocoptExit
+import cmd
 from models import model
-from views import ui
+from views import ui, template
+from core import logic
 
 
 class Admin(cmd.Cmd):
@@ -38,9 +37,9 @@ class Admin(cmd.Cmd):
         Usage:
            create_room <room_type> <room_name>...
         """
-        room_t = room_information['<room_type>']
+        room_type = room_information['<room_type>']
         for name in room_information['<room_name>']:
-            status_message = logic.create_and_addroom(self.dojo, room_t, name)
+            status_message = logic.create_and_addroom(self.dojo, room_type, name)
             ui.createroom_ui(status_message)
 
     @argument_parser
@@ -54,9 +53,7 @@ class Admin(cmd.Cmd):
         wants_room = person_information['<choice>']
         person_type = person_information['<person_type>']
 
-        status_messages = logic.addsperson_chooseroom(self.dojo, firstname,secondname, person_type, wants_room)
-
-        print(status_messages)
+        status_messages = logic.addsperson_chooseroom(self.dojo, firstname, secondname, person_type, wants_room)
         ui.person_ui(status_messages)
 
     @argument_parser
@@ -131,38 +128,6 @@ class Admin(cmd.Cmd):
             else:
                 ui.person_ui(status)
 
-    @argument_parser
-    def load_state(self, args):
-        """
-        Usage:
-             load_state <database_path>
-        """
-        pass
-
-    @argument_parser
-    def save(self, args):
-        """
-        Usage:
-             save [<model>]
-        """
-        pass
-
-    @argument_parser
-    def remove_person(self, args):
-        """
-        Usage:
-            remove_person <ID>
-        """
-        pass
-
-    @argument_parser
-    def remove_room(self, args):
-        """
-        Usage:
-            remove_room <room_name>
-        """
-        pass
-
     def do_clear(self, args):
         '''
         Usage:
@@ -190,7 +155,7 @@ class Admin(cmd.Cmd):
 
     def default(self, args):
         ui.print_error(args, status='Command Does Not Exit')
-        ui.print_message('Press TAB key Twice to view all available COMMANDS')
+        ui.print_message('Press <TAB> key Twice to view all available COMMANDS')
 
 
 class SystemRestartInterrupt(Exception):

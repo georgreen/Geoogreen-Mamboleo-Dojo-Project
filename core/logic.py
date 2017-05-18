@@ -1,6 +1,7 @@
-from core import helpers
-from core.helpers import *
 from models import model
+from core import helpers
+# import fix for testing
+from core.helpers import *
 
 
 def create_and_addroom(dojo, room_type, room_name):
@@ -38,7 +39,6 @@ def addsperson_chooseroom(dojo, first_name, second_name, person_type, choice_liv
     # set up status message respond
     status_messages = {'status': None, 'person_type': person_type}
     status_messages['name'] = first_name + ' ' + second_name
-    status_messages['id'] = None
 
     choice = 'Y'
     if not choice_live or choice_live.lower() not in 'y':
@@ -90,8 +90,7 @@ def allocate_room(new_person, dojo):
 
 def people_inroom(dojo, room_name):
     """
-    input: room_name and dojo
-    returns: the names of all the people in room_name
+    returns the names of all the people in room_name
     """
     room_name = room_name.strip()
     rooms = list(dojo.office) + list(dojo.livingspace)
@@ -107,7 +106,6 @@ class NotFoundException(Exception):
 
 def dict_allocations(dojo):
     """
-    input: dojo
     returns a dict of allocations
     """
     allocations = {}
@@ -120,7 +118,6 @@ def dict_allocations(dojo):
 
 def list_unallocated(dojo, file_name=''):
     """
-    input: dojo & [file_name]
     returns a list of unallocated people to the screen
     if file_name is specified values are saved to file_name.txt
     """
