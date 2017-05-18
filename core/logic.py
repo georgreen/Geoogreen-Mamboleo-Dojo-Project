@@ -1,7 +1,6 @@
-from models import model
 from core import helpers
-# import fix for testing
 from core.helpers import *
+from models import model
 
 
 def create_and_addroom(dojo, room_type, room_name):
@@ -39,6 +38,7 @@ def addsperson_chooseroom(dojo, first_name, second_name, person_type, choice_liv
     # set up status message respond
     status_messages = {'status': None, 'person_type': person_type}
     status_messages['name'] = first_name + ' ' + second_name
+    status_messages['id'] = None
 
     choice = 'Y'
     if not choice_live or choice_live.lower() not in 'y':
