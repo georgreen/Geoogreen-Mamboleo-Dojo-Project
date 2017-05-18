@@ -1,13 +1,14 @@
-from models import model
-from core import logic
-
 import unittest
+
+from core import logic
+from models import model
+
 
 class test_create_room(unittest.TestCase):
     dojo = model.Dojo("Andela-Kenya")
     def setUp(self):
-        self.white_char_in_name = logic.create_room('office', "name        ", test_create_room.dojo)
-        self.white_char_in_typr = logic.create_room('livingspace        ', "name",test_create_room.dojo)
+        self.white_char_in_name = logic.create_room('office', "name ", test_create_room.dojo)
+        self.white_char_in_typr = logic.create_room('livingspace ', "name",test_create_room.dojo)
 
 
     def test_create_room_office(self):
