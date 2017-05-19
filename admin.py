@@ -1,9 +1,8 @@
 import cmd
 import os
 
-from docopt import DocoptExit, docopt
-
 from core import logic
+from docopt import DocoptExit, docopt
 from models import model
 from views import ui
 
@@ -134,7 +133,7 @@ class Admin(cmd.Cmd):
     def load_state(self, args):
         """
         Args:
-        param1 (str): absolute path specify a database
+        param1 (str): absolute path specifying  a database
 
         Returns:
         None: The return value.
@@ -148,7 +147,7 @@ class Admin(cmd.Cmd):
     def save_state(self, args):
         """
         Args:
-        param1 (str): name for database 
+        param1 (str): absolute path specifying a database
 
         Returns:
         None: The return value.
