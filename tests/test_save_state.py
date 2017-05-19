@@ -14,9 +14,9 @@ class SaveStateTestCase(unittest.TestCase):
 
         This should cover the full catersian
     """
+    dojo = model.Dojo("AndelaKenya_test")
     def setUp(self):
-        self.dojo = model.Dojo("AndelaKenya")
-
+        self.dojo = SaveStateTestCase.dojo
         self.office = model.Office('new_office')
         self.livingspace = model.LivingSpace('new_livingspace')
         self.dojo.add_office(self.office)
