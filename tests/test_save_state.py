@@ -2,7 +2,6 @@
 import os
 import unittest
 
-from core import logic
 from models import model
 
 
