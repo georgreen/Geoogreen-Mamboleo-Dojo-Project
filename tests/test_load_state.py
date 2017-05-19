@@ -17,7 +17,7 @@ class LoadStateTestCase(unittest.TestCase):
         This should cover the full catersian plane
     """
     def setUp(self):
-        self.dojo = model.Dojo("Andela-Kenya")
+        self.dojo = model.Dojo("Andela-Kenya1")
 
     def test_throw_exception_non_string(self):
         with self.assertRaises(TypeError):
