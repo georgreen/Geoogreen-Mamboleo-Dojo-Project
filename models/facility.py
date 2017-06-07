@@ -1,41 +1,50 @@
+import os
+
+from models.person import Person
+from models.room import LivingSpace, Office, Room
+
+from .base_db import (DBDoesNotExistException, OverWriteException,
+                      UpdateException, create_session, create_tables,
+                      load_engine)
+
+
 class Dojo():
     """
-    input name -> string
     models Dojo facillity
     """
-    facillity_names = []
 
     def __init__(self, name):
-        if not isinstance(name, str):
-            raise TypeError
-        if name in Dojo.facillity_names:
-            raise DuplicateError
-        self.__cleaned_name = Dojo.clean_name(name)
-        if not self.__cleaned_name:
-            raise TypeError
-
-        self.__number_livingspace = 0
-        self.__number_offices = 0
         self.rooms = {'offices': {}, 'livingspace': {}}
         self.person = {'fellow': {}, 'staff': {}}
-        self.name = self.__cleaned_name
-        self.office = self.rooms['offices'].values()
-        self.livingspace = self.rooms['livingspace'].values()
-        self.fellow = self.person['fellow'].values()
-        self.staff = self.person['staff'].values()
-        self.takken_names = set()
-        Dojo.facillity_names.append(self.__cleaned_name)
+        self.name = name
 
-    # validate name
-    def clean_name(name):
-        clean_name = ""
-        name_stripped = name.split()
-        if len(name_stripped) == 0:
-            return ''
-        cleaned_name = name_stripped[0]
-        # check for atleat one letter
-        if cleaned_name:
-            return cleaned_name
+        self.database_session = None
+        self.database_engine = None
+        self.db_migrations = True
+
+        self.loaded = None
+        self.database_name = None
+
+    @property
+    def livingspace(self):
+        return self.rooms['livingspace'].values()
+
+    @property
+    def fellow(self):
+        return self.person['fellow'].values()
+
+    @property
+    def staff(self):
+        return self.person['staff'].values()
+
+    @property
+    def office(self):
+        return self.rooms['offices'].values()
+
+    @property
+    def takken_names(self):
+        return (list(self.rooms['offices'].keys()) +
+                list(self.rooms['livingspace'].keys()))
 
     def add_person_office(self, name, staff):
         self.rooms['offices'][name].add_occupant(staff)
@@ -46,12 +55,10 @@ class Dojo():
     def add_office(self, new_office):
         # refactor office
         self.rooms['offices'][new_office.name] = new_office
-        self.takken_names.add(new_office.name)
 
     def add_livingspace(self, new_livingspace):
         # refactor settet livingspace
         self.rooms['livingspace'][new_livingspace.name] = new_livingspace
-        self.takken_names.add(new_livingspace.name)
 
     def add_staff(self, new_staff):
         # refactor staff setter
@@ -101,6 +108,7 @@ class Dojo():
         Removes Office from the Dojo
         """
         if old_space.name in self.rooms['offices']:
+            self.delete_from_db(old_space)
             del self.rooms['offices'][old_space.name]
             return True
         return False
@@ -110,6 +118,7 @@ class Dojo():
         Removes LivingSpace from the Dojo
         """
         if old_space.name in self.rooms['livingspace']:
+            self.delete_from_db(old_space)
             del self.rooms['livingspace'][old_space.name]
             return True
         return False
@@ -120,6 +129,7 @@ class Dojo():
         Return True if succesfull else False
         """
         if old_fellow.id in self.person['fellow']:
+            self.delete_from_db(old_fellow)
             del self.person['fellow'][old_fellow.id]
             return True
         return False
@@ -130,11 +140,105 @@ class Dojo():
         Return True if succesfull else False
         """
         if old_staff.id in self.person['staff']:
+            self.delete_from_db(old_staff)
             del self.person['staff'][old_staff.id]
             return True
         return False
 
+    def save_state(self, database_name="default.db", over_write=False, up=" "):
+        if type(database_name) != str:
+            raise TypeError
+        if over_write:
+            if os.path.exists("models/database/" + database_name):
+                os.remove("models/database/" + database_name)
+            raise OverWriteException
+        if os.path.exists("models/database/" + database_name) and up:
+            raise UpdateException
 
-# exception throw for duplicates insertions
-class DuplicateError(Exception):
-    pass
+        if up:
+            self.reset_db()
+
+        self.init_db(database_name)
+        self.database_session.add_all(list(self.fellow) + list(self.staff))
+        self.database_session.add_all(list(self.office) +
+                                      list(self.livingspace))
+        self.database_session.commit()
+        if not self.database_name:
+            self.database_name = database_name
+
+    def load_state(self, database_name="default.db", previous_state=False):
+        if previous_state:
+            database_name = "default.db"
+        if type(database_name) != str:
+            raise TypeError
+        if not os.path.exists("models/database/" + database_name):
+            raise DBDoesNotExistException
+
+        # reset db
+        self.reset_db()
+
+        # initialize db
+        self.init_db(database_name)
+
+        # reset internal state
+        self.rooms = {'offices': {}, 'livingspace': {}}
+        self.person = {'fellow': {}, 'staff': {}}
+
+        table_name = None
+        key_value = None
+        location_to_insert_item = None
+        types_to_be_loaded = ['offices', 'livingspace', 'fellow', 'staff']
+        for type_quried in types_to_be_loaded:
+            if type_quried == 'offices' or type_quried == 'livingspace':
+                table_name = Room
+                key_value = "name"
+                location_to_insert_item = self.rooms
+            else:
+                table_name = Person
+                key_value = "id"
+                location_to_insert_item = self.person
+            data = self.query_database_table(table_name, type_quried)
+            for item in data:
+                value = None
+                if key_value == "name":
+                    value = item.name
+                elif key_value == "id":
+                    value = item.id
+                location_to_insert_item[type_quried][value] = item
+
+        # Update relevent variable
+        Office.max_occupants = 6
+        Office.number_of_offices += len(self.office)
+        LivingSpace.max_occupants = 4
+        LivingSpace.number_of_livingspace += len(self.livingspace)
+        Person.number_of_person = len(self.staff) + len(self.fellow)
+
+        self.loaded = True
+
+    def init_db(self, database_name):
+        if not self.database_engine:
+            self.database_engine = load_engine(database_name)
+        if self.db_migrations:
+            create_tables(self.database_engine)
+            self.db_migrations = False
+        if not self.database_session:
+            self.database_session = create_session(self.database_engine)
+
+    def reset_db(self):
+        if self.database_session:
+            self.database_session.commit()
+            self.database_session.close()
+            self.database_session = None
+        self.database_engine = None
+        self.db_migrations = True
+
+    def delete_from_db(self, item_in_db):
+        if self.database_session:
+            self.database_session.delete(item_in_db)
+            self.database_session.commit()
+
+    def query_database_table(self, table_name, type_quried):
+        query_set = (self.database_session.query(table_name).filter_by
+                     (type=type_quried))
+        for item in query_set:
+            yield item
