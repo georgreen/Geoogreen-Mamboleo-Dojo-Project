@@ -1,5 +1,6 @@
-from core import helpers
-from core.helpers import *
+from core.helpers import (add_person, allocate_livingspace, allocate_office,
+                          allocate_room, create_room, deallocate_person,
+                          get_roomname_type, load_data_text, save_data_text)
 from models import model
 
 
@@ -31,7 +32,8 @@ def create_and_addroom(dojo, room_type, room_name):
     return status_messages
 
 
-def addsperson_chooseroom(dojo, first_name, second_name, person_type, choice_live='N'):
+def addsperson_chooseroom(dojo, first_name, second_name, person_type,
+                          choice_live='N'):
     """
     add a person to dojo and allocates office and [livingspace]
     """
@@ -40,8 +42,8 @@ def addsperson_chooseroom(dojo, first_name, second_name, person_type, choice_liv
     status_messages['name'] = first_name + ' ' + second_name
     status_messages['id'] = None
 
-    choice = 'Y'
-    if not choice_live or choice_live.lower() not in 'y':
+    choice = choice_live
+    if not choice_live or choice_live.lower() in "n no":
         choice = 'N'
         choice_live = False
     else:
@@ -50,41 +52,20 @@ def addsperson_chooseroom(dojo, first_name, second_name, person_type, choice_liv
 
     try:
         new_person = add_person((first_name, second_name), person_type, choice)
-        status_messages['status'] = 'ok'
-        status_messages['id'] = new_person.id
-        new_person.office = None
     except TypeError:
         status_messages['status'] = 'Failed'
         return status_messages
 
-    room_update = allocate_room(new_person, dojo)
-    status_messages.update(room_update)
-    return status_messages
-
-
-def allocate_room(new_person, dojo):
-    """
-    allocates a room to new_person
-    Returns a dictionary of status messages about success of adding to rooms
-    """
-    status_messages = {'office': None, 'livingspace': None}
-
-    if new_person == 'Invalid name':
+    if new_person == "Invalid name":
         status_messages['status'] = 'Invalid name'
-        return status_messages
     elif new_person == "Invalid choice":
         status_messages['status'] = 'Invalid choice'
-        return status_messages
-    elif isinstance(new_person, model.Fellow):
-        if new_person.wants_living:
-            status_messages['livingspace'] = allocate_livingspace(new_person, dojo=dojo)
-        dojo.add_fellow(new_person)
-        status_messages['person_type'] = 'fellow'
     else:
-        dojo.add_staff(new_person)
-        status_messages['person_type'] = 'staff'
-    status_messages['office'] = allocate_office(new_person, dojo=dojo)
-
+        status_messages['status'] = 'ok'
+        status_messages['id'] = new_person.id
+        new_person.office = None
+        room_update = allocate_room(new_person, dojo)
+        status_messages.update(room_update)
     return status_messages
 
 
@@ -110,11 +91,9 @@ def dict_allocations(dojo):
     input: dojo
     returns a dict of allocations
     """
-    allocations = {}
     rooms = list(dojo.office) + list(dojo.livingspace)
-    for room in rooms:
-        allocations[room.name] = people_inroom(dojo, room.name)
-
+    # makes a dictionary, allocation with key-> roomname: -> value(occupants)
+    allocations = {room.name: people_inroom(dojo, room.name) for room in rooms}
     return allocations
 
 
@@ -131,7 +110,8 @@ def list_unallocated(dojo, file_name=''):
     for fellow in person['fellow'].values():
         allocated_living = fellow.is_allocated_living()
         allocated_office = fellow.is_allocated_office()
-        if not allocated_office or (not allocated_living and fellow.wants_living):
+        is_unallocated_l = not allocated_living and fellow.wants_living
+        if not allocated_office or is_unallocated_l:
             unallocated.append(fellow)
 
     # go over staff
@@ -142,14 +122,14 @@ def list_unallocated(dojo, file_name=''):
 
 
 def save_txt(file_name, raw_data, mode='wt'):
-    save_data_txt(file_name, raw_data, mode)
+    save_data_text(file_name, raw_data, mode)
 
 
 def load_data_txt(file_name, dojo):
     status_data = []
     try:
         if file_name[len(file_name) - 4:] == '.txt':
-            loaded_data = helpers.load_data_txt(file_name)
+            loaded_data = load_data_text(file_name)
         else:
             raise FileNotFoundError
     except FileNotFoundError:
@@ -160,16 +140,17 @@ def load_data_txt(file_name, dojo):
             choice_live = 'N'
             if len(user_info) == 4:
                 choice_live = user_info[3]
-            status = addsperson_chooseroom(dojo, first_name, second_name, person_type, choice_live)
+            status = addsperson_chooseroom(dojo, first_name, second_name,
+                                           person_type, choice_live)
             status_data.append(status)
         elif len(user_info) > 0:
-            msg = {'status': 'illegalformat', 'message': ' '.join(user_info) + ": was not Added."}
+            message = ' '.join(user_info) + ": was not Added."
+            msg = {'status': 'illegalformat', 'message': message}
             status_data.append(msg)
     return status_data
 
 
 def reallocate_person(room_name, person_id, dojo):
-
     person = room = None
     status_messages = {'status': 'Fail'}
     try:
@@ -205,7 +186,8 @@ def reallocate_person(room_name, person_id, dojo):
     status_messages['prev_office'] = current_office
     status_messages['prev_livingspace'] = current_livingspace
 
-    deallocation = deallocate_person(room_type, person, current_office, current_livingspace)
+    deallocation = deallocate_person(room_type, person, current_office,
+                                     current_livingspace)
     status_messages['deallocation'] = deallocation
     status_messages['name'] = person.name
     status_messages['room_type'] = room_type
@@ -217,38 +199,14 @@ def reallocate_person(room_name, person_id, dojo):
         if room_type == 'O':
             msg = allocate_office(person, name_office=name, dojo=dojo)
         elif person.wants_living:
-            msg = allocate_livingspace(person, name_livingspace=name, dojo=dojo)
+            # relies on the logic that if room_type is not O i.e office, then
+            # room_type must be livingspace
+            msg = allocate_livingspace(person, name_livingspace=name,
+                                       dojo=dojo)
             status_messages['choice'] = person.wants_living
         if not msg:
             status_messages['status'] = 'Invalid Operation'
     else:
         status_messages['status'] = 'Invalid Operation'
 
-    return status_messages
-
-
-def deallocate_person(room_type, person, office=None, livingspace=None):
-    deallocation = None
-    if room_type == 'O' and office:
-        deallocation = deallocate_office(person, office)
-    elif room_type == 'L' and livingspace:
-        deallocation = deallocate_livingspace(person, livingspace)
-    elif room_type == 'L' and isinstance(person, model.Staff):
-        deallocation = 'Invalid Operation'
-
-    return deallocation
-
-
-def get_roomname_type(room_name, dojo):
-    status_messages = {}
-    room_name = room_name.strip().lower()
-    if room_name not in dojo.takken_names:
-        status_messages['status'] = "Room not found"
-    else:
-        office = dojo.get_office(room_name.strip().lower())
-        livingspace = dojo.get_livingspace(room_name.strip().lower())
-
-        # we can only reallocate one room at a time office or livingspace
-        status_messages['in'] = (office, 'O') if office else (livingspace, 'L')
-        status_messages['status'] = 'ok'
     return status_messages

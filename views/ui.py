@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-from pyfiglet import figlet_format
-from termcolor import cprint, colored
-from views import template
-
 import os
 
+from pyfiglet import figlet_format
+from termcolor import colored, cprint
+from views import template
+
+# symboles
 unicode_tick = u'\u2713'
 unicode_cross = u'\u274c'
 unicode_warning = u'\u26A0'
@@ -16,13 +17,45 @@ unicode_coolface = u"\U0001F60E"
 unicode_sadface = u"\u2639"
 unicode_luckyface = u"\U0001F61B"
 
+usage = colored("""
+Usage:
+   create_room <room_type> <room_name> ...
+   add_person <first_name> <last_name> <FELLOW>|<STAFF> [<wants_accommodation>]
+   print_room <room_name>
+   print_allocations <filename>
+   print_unallocated <filename>
+   reallocate_person <person_identifier> <new_room_name>
+   load_people <filename>
+   save_state [<name_of_database>]
+   load_state [<name_of_database>]
+   clear
+   restart
+   quit
+
+Arguments:
+    FELLOW|STAFF           Person type to create
+    wants_accommodation    Specify if fellow wants a living space
+    filename               Specify file to load or read data from
+    person_identifier      Specify the Id for STAFF | FELLOW
+    room_type              Specify type of room Office | Livingspace
+    name_of_database       Specify databse to be laoded or saved to.
+
+Options:
+    -h, --help           : To show the command's help messsage
+""", "yellow")
+
+
+def dynamic_promt(color='green', symbole=unicode_luckyface):
+    prompt = colored("INPUT ", color) + symbole + "  "
+    return prompt
+
 
 def print_welcome():
     '''
     display welcome message
     '''
     clear_console()
-    msg = "Office LivingSpace Allocation System "
+    msg = "User Allocations"
     cprint(figlet_format(msg), 'blue', attrs=['bold'])
     print_message("Welcome to Office Space Allocation")
 
@@ -38,29 +71,8 @@ def print_exit():
 
 def print_usage():
     '''
-    print usage message on clear_console
+    print usage message on console
     '''
-    usage = """
-    Usage:
-        create_room <room_type> <room_name> ...
-        add_person <first_name> <last_name> <FELLOW>|<STAFF> [<wants_accommodation>]
-        print_room <room_name>
-        print_allocations <filename>
-        print_unallocated <filename>
-        reallocate_person <person_identifier> <new_room_name>
-        load_people <filename>
-        clear
-        restart
-        quit
-
-    Arguments:
-        FELLOW|STAFF           Person type to create
-        wants_accommodation    Specify if fellow wants a living space
-        filename               Specify file to load or read data from
-
-    Options:
-        -h, --help           : To show the command's help messsage
-    """
     print(usage)
 
 
@@ -114,6 +126,7 @@ def print_template(template, *data, fail=False, status='ok', Id=None):
     id_padd = padding - len(col_str)
     st_padd = 10
     print(' ' * 5, colored(col_str, color), " " * id_padd, end='')
+    # import pdb; pdb.set_trace()
     if Id:
         col_id = 'ID:' + str(Id)
         st_padd = st_padd - len(col_id)
@@ -125,8 +138,7 @@ def createroom_ui(status_message):
     room_type = status_message['room_type']
     room_name = status_message['room_name']
     status = status_message['status']
-    messsage = None
-    color = None
+    message = None
     fail = True
     if status_message['status'] == 'ok':
         message = template.room_created_message
@@ -146,10 +158,16 @@ def person_ui(status_messages):
     person_type = status_messages['person_type'].lower().capitalize()
     Id = status_messages['id']
 
+    p_t = person_type
     if status == 'Failed':
         message = template.person_not_created_message
-        p_t = person_type
         print_template(message, p_t, name, p_t, fail=True, status='Failed')
+    elif status == 'Invalid name':
+        message = template.person_invalid_name_message
+        print_template(message, p_t, name, fail=True, status='Failed')
+    elif status == 'Invalid choice':
+        message = template.person_invalid_choice
+        print_template(message, name, fail=True, status='Inavalid Choice')
     elif status == 'ok':
         choice = status_messages['choice_live']
         office = status_messages['office']
@@ -196,13 +214,13 @@ def room_ui(room_name, occupants=None, found=True):
     print_message("_" * 20, color=color)
     if found:
         if len(occupants) > 0:
-            print(' ' * 5, end='')
+            print(' ' * 7, end='')
             for member in occupants:
                 name = colored(member.name.capitalize(), 'green')
                 print(name, end=', ')
             print(end='\n')
         else:
-            print_message("Empty room", symbole=unicode_sadface, color='blue')
+            print_message("Empty room " + unicode_luckyface, color='blue')
     else:
         print_error("Room not found", status='Not Found')
     print(end='\n \n')
@@ -243,4 +261,5 @@ def reallocate_ui(status_message):
         status = 'Invalid Reallocation'
         if status_message.get('choice') or room_type == 'Office':
             status = 'Room Full'
-        print_template(msg, name, room_type, curr_room, fail=True, status=status)
+        print_template(msg, name, room_type, curr_room, fail=True,
+                       status=status)

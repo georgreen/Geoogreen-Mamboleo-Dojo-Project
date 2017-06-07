@@ -1,11 +1,24 @@
+from models.base_db import (Base, Boolean, Column, ForeignKey, Integer, String,
+                            relationship)
+
+
 # model a room
-class Room():
+class Room(Base):
     '''
     models abstract data type Room, not intended to be instanciated
     '''
-    # keep track of all rooms created
-    number_of_rooms = 0
-    takken_names = []
+    __tablename__ = 'rooms'
+
+    number_of_rooms = Column(Integer, default=0)
+    name = Column(String(256))
+    type = Column(String(50))
+    id = Column(Integer, primary_key=True)
+    occupants = relationship('Person')
+
+    __mapper_args__ = {
+        'polymorphic_on': type,
+        'polymorphic_identity': 'rooms'
+    }
 
     def __init__(self, max_occupants, name):
         '''
@@ -16,7 +29,6 @@ class Room():
         self.max_occupants = max_occupants
         self.occupants = []
         self.__id = Room.number_of_rooms
-        Room.takken_names.append(name)
 
     @property
     def current_population(self):
@@ -31,24 +43,24 @@ class Room():
         '''
         return self.current_population == self.max_occupants
 
-    def is_in_room(self, person):
+    def is_in_room(self, user):
         '''
-        returns true if person in room_name
+        returns true if user in room_name
         '''
-        return person in self.occupants
+        return user in self.occupants
 
-    def add_occupant(self, person):
+    def add_occupant(self, user):
         '''
-        adds person to room_name
+        adds user to room_name
         '''
-        self.occupants.append(person)
+        self.occupants.append(user)
 
-    def remove_occupant(self, person):
+    def remove_occupant(self, user):
         '''
-        removes person from room
+        removes user from room
         '''
-        if self.is_in_room(person):
-            del self.occupants[self.occupants.index(person)]
+        if self.is_in_room(user):
+            del self.occupants[self.occupants.index(user)]
             return True
         return False
 
@@ -69,6 +81,10 @@ class Office(Room):
     number_of_offices = 0
     max_occupants = 6
 
+    __mapper_args__ = {
+        'polymorphic_identity': 'offices'
+    }
+
     def __init__(self, name):
         Office.number_of_offices += 1
         Room.__init__(self, Office.max_occupants, name)
@@ -83,6 +99,10 @@ class LivingSpace(Room):
     # number of LivingSpaces
     number_of_livingspace = 0
     max_occupants = 4
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'livingspace'
+    }
 
     def __init__(self, name):
         LivingSpace.number_of_livingspace += 1

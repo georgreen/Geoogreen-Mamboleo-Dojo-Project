@@ -1,4 +1,5 @@
 import random
+
 from models import model
 
 
@@ -18,7 +19,7 @@ def create_room(room_type, room_name, dojo):
         raise TypeError
     room_type_cleaned = room_type_stripped
 
-    if len(room_name_stripped) == 0:
+    if len(room_name_stripped) == 0 or not room_name_stripped.isalnum():
         return 'Invalid name'
     room_name_cleaned = room_name_stripped
 
@@ -36,6 +37,7 @@ def add_person(names, person_type, wants_livingspace='N'):
     """
     input: firstname lastname Fellow/Staff [Y]
     """
+
     # validate fields data types
     if not isinstance(names, tuple) or not isinstance(person_type, str) or\
             not isinstance(wants_livingspace, str):
@@ -55,7 +57,7 @@ def add_person(names, person_type, wants_livingspace='N'):
 
     # validate wants_livingspace
     wants_livingspace = wants_livingspace.strip().lower()
-    if wants_livingspace not in 'yn':
+    if wants_livingspace not in 'yn' and person_type == "fellow":
         return "Invalid choice"
     choice = True if wants_livingspace == 'y' else False
 
@@ -66,7 +68,37 @@ def add_person(names, person_type, wants_livingspace='N'):
         new_person = model.Fellow(name, choice)
         new_person.livingspace = False
         new_person.office = False
+        new_person.wants_living = False
+        if choice:
+            new_person.wants_living = True
     return new_person
+
+
+def allocate_room(new_person, dojo):
+    """
+    allocates a room to new_person
+    Returns a dictionary of status messages about success of adding to rooms
+    """
+    status_messages = {'office': None, 'livingspace': None}
+
+    if new_person == 'Invalid name':
+        status_messages['status'] = 'Invalid name'
+        return status_messages
+    elif new_person == "Invalid choice":
+        status_messages['status'] = 'Invalid choice'
+        return status_messages
+    elif isinstance(new_person, model.Fellow):
+        if new_person.wants_living:
+            status_messages['livingspace'] = allocate_livingspace(new_person,
+                                                                  dojo=dojo)
+        dojo.add_fellow(new_person)
+        status_messages['person_type'] = 'fellow'
+    else:
+        dojo.add_staff(new_person)
+        status_messages['person_type'] = 'staff'
+    status_messages['office'] = allocate_office(new_person, dojo=dojo)
+
+    return status_messages
 
 
 def allocate_office(new_person, dojo, name_office=None):
@@ -118,7 +150,8 @@ def choose_office_random(dojo):
         index = random.randrange(number_of_offices)
     else:
         return "NoRoomException"
-    return list(dojo.office)[index].name
+    list_offices = list(dojo.office)
+    return list_offices[index].name
 
 
 def choose_living_space_random(dojo):
@@ -130,14 +163,15 @@ def choose_living_space_random(dojo):
         index = random.randrange(number_of_livingspace)
     else:
         return "NoRoomException"
-    return list(dojo.livingspace)[index].name
+    list_livingspace = list(dojo.livingspace)
+    return list_livingspace[index].name
 
 
 class NoRoomException(Exception):
     pass
 
 
-def save_data_txt(file_name, data, mode='wt'):
+def save_data_text(file_name, data, mode='wt'):
     if file_name[len(file_name) - 4:] != '.txt':
         file_name = file_name + '.txt'
 
@@ -147,16 +181,42 @@ def save_data_txt(file_name, data, mode='wt'):
     file_out.close()
 
 
-def load_data_txt(file_name):
+def load_data_text(file_name):
     data = []
     raw_data = open(file_name, 'rt')
     while True:
-        store = []
         line = raw_data.readline()
         if not line:
             break
         data.append(line.split())
     return data
+
+
+def deallocate_person(room_type, person, office=None, livingspace=None):
+    deallocation = None
+    if room_type == 'O' and office:
+        deallocation = deallocate_office(person, office)
+    elif room_type == 'L' and livingspace:
+        deallocation = deallocate_livingspace(person, livingspace)
+    elif room_type == 'L' and isinstance(person, model.Staff):
+        deallocation = 'Invalid Operation'
+
+    return deallocation
+
+
+def get_roomname_type(room_name, dojo):
+    status_messages = {}
+    room_name = room_name.strip().lower()
+    if room_name not in dojo.takken_names:
+        status_messages['status'] = "Room not found"
+    else:
+        office = dojo.get_office(room_name.strip().lower())
+        livingspace = dojo.get_livingspace(room_name.strip().lower())
+
+        # we can only reallocate one room at a time office or livingspace
+        status_messages['in'] = (office, 'O') if office else (livingspace, 'L')
+        status_messages['status'] = 'ok'
+    return status_messages
 
 
 def deallocate_livingspace(person, room):

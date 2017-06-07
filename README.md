@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/georgreen/Geoogreen-Mamboleo-Dojo-Project.svg?branch=master)](https://travis-ci.org/georgreen/Geoogreen-Mamboleo-Dojo-Project) [![Coverage Status](https://coveralls.io/repos/github/georgreen/Geoogreen-Mamboleo-Dojo-Project/badge.svg?branch=master)](https://coveralls.io/github/georgreen/Geoogreen-Mamboleo-Dojo-Project?branch=master)  [![Code Issues](https://www.quantifiedcode.com/api/v1/project/d4e4bbeca60e46fca5ced46934c26d4c/badge.svg)](https://www.quantifiedcode.com/app/project/d4e4bbeca60e46fca5ced46934c26d4c)
+
+
 # Office And LivingSpace Allocation System
 A Command line application that managers a dojo facillity. <br/>
 It allocates rooms to new employees, [Staff or Fellow] randomly.
@@ -37,20 +40,20 @@ After cloning the repo , cd to the folder, activate your virtual enviroment then
 
 ```
 pip install -r requirements.txt
-``` 
+```
 Run the above command to install the app and required dependencies.
 
 ### Running the App
 
-From your terminal you can now run the application by using the following command: 
+From your terminal you can now run the application by using the following command:
 
 ```
 python3 admin.py
 ```
 
-A welcome screen will show as follows: 
+A welcome screen will show as follows:
 
-   ![home screen](assets/home.png)
+   ![home screen](assets/splashscreen.png)
 
 You can now interact with application by entering the commands displayed above. <br/>
 *NOTE:* Pressing the TAB key twice displays all the available commands
@@ -58,20 +61,25 @@ You can now interact with application by entering the commands displayed above. 
 ### Session Examples:
 + To create a room which is an office run the command `create room office red` or use `livingspace` to create a livingspace. You could also give a list of room names to create by separating the names with spaces as shown:
 
-    ![create room](assets/createroom.png)
+    ![create room](assets/create_room.png)
 
-+ To add a person, use the command `add person Paul Joe staff` and for a fellow who wants a living space use `add person Jojn Doe fellow y`. 
++ To add a person, use the command `add person Paul Joe staff` and for a fellow who wants a living space use `add person Jojn Doe fellow y`.
 
-    ![add person](assets/addperson.png)
+    ![add person](assets/add_person.png)
 
     *NOTE:* the livingspace option only applies to fellows and not staff.
 
 + You can reallocate a person using the command `reallocate_person <id> <newroom>`.
+    ![add person](assets/reallocate_person.png)
 
 + You can load people from a file by using the `load_people file.txt` command.
+    ![add person](assets/load_people.png)
 
 
-+ You can also print out the allocated people and the unallocated using `print_[allocated|unallocated]` command, specifying the filename saves the allocations on the specified file. 
++ You can also print out the allocated people and the unallocated using `print_[allocated|unallocated]` command, specifying the filename saves the allocations on the specified file.
+    ![add person](assets/print_unallocated.png)
+
+    ![add person](assets/print_allocations.png)
 
 + The command `print_room <room name>` print's room's occupants.
 

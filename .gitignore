@@ -1,2 +1,6 @@
 .cache
 *.pyc
+*.coverage
+*.DS_Store
+*.txt
+*.db
