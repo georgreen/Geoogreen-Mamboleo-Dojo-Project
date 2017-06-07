@@ -1,7 +1,6 @@
-from context import models, views, core
-from models import model
-from core import logic
 import unittest
+
+from models import model
 
 
 class test_Rooms(unittest.TestCase):
@@ -96,7 +95,8 @@ class test_person(unittest.TestCase):
         self.staff2.office = self.office1
         self.fellow1.office = self.office
 
-        self.assertEqual([self.person1.office, self.fellow1.office], [self.office, self.office])
+        self.assertEqual([self.person1.office, self.fellow1.office],
+                         [self.office, self.office])
         self.assertEqual(self.staff2.office, self.office1)
 
     def test_remove_office(self):
@@ -145,7 +145,6 @@ class test_dojo(unittest.TestCase):
         Each test should be covered atleast once
     """
     def setUp(self):
-        model.Dojo.facillity_names.clear()
         self.dojo1 = model.Dojo("Andela_kenya")
 
         self.room = model.Office("HR")
@@ -168,36 +167,9 @@ class test_dojo(unittest.TestCase):
         self.dojo1.add_staff(self.person3)
         self.dojo1.add_staff(self.person4)
 
-    # test badtype as name input
-    def test_badtypes_name(self):
-        with self.assertRaises(TypeError):
-            model.Dojo([])
-        with self.assertRaises(TypeError):
-            model.Dojo(1)
-
-    # test non-stanard input on iput -> name
-    def test_whitespace_ascii_name(self):
-        with self.assertRaises(TypeError):
-            model.Dojo("  ")
-        with self.assertRaises(TypeError):
-            model.Dojo('@#####')
-
-        self.assertEqual('@#####F', model.Dojo('@#####F').name)
-        self.assertEqual("Hello", model.Dojo("Hello      ").name)
-
-    # test making duplicate dojo
-    def test_duplicate_name(self):
-        with self.assertRaises(model.DuplicateError):
-            model.Dojo("Andela_kenya")
-
     # covers len(name) > 0
     def test_name_len_positive(self):
         self.assertIsInstance(model.Dojo("my_cool_name"), model.Dojo)
-
-    # cover len(name) == 0, name = ''
-    def test_name_len_zero(self):
-        with self.assertRaises(TypeError):
-            model.Dojo('')
 
     # cover is_staff
     def test_is_staff(self):
