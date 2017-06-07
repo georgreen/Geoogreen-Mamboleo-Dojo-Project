@@ -17,7 +17,7 @@ unicode_coolface = u"\U0001F60E"
 unicode_sadface = u"\u2639"
 unicode_luckyface = u"\U0001F61B"
 
-usage = """
+usage = colored("""
 Usage:
    create_room <room_type> <room_name> ...
    add_person <first_name> <last_name> <FELLOW>|<STAFF> [<wants_accommodation>]
@@ -42,7 +42,7 @@ Arguments:
 
 Options:
     -h, --help           : To show the command's help messsage
-"""
+""", "yellow")
 
 
 def dynamic_promt(color='green', symbole=unicode_luckyface):
@@ -55,7 +55,7 @@ def print_welcome():
     display welcome message
     '''
     clear_console()
-    msg = "Office LivingSpace Allocation System "
+    msg = "User Allocations"
     cprint(figlet_format(msg), 'blue', attrs=['bold'])
     print_message("Welcome to Office Space Allocation")
 
