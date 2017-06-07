@@ -55,7 +55,7 @@ class Fellow(Person):
     def __str__(self):
         choice = 'Y' if self.wants_living else 'N'
         name = self.name.upper()
-        return "FELLOW %s %s ID %d" % (name, choice, self.id)
+        return "FELLOW {0!s} {1!s} ID {2:d}".format(name, choice, self.id)
 
 
 class Staff(Person):
@@ -72,4 +72,4 @@ class Staff(Person):
 
     def __str__(self):
         name = name = self.name.upper()
-        return "STAFF %s ID %d" % (name, self.id)
+        return "STAFF {0!s} ID {1:d}".format(name, self.id)
