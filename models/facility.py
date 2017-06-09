@@ -108,6 +108,8 @@ class Dojo():
         Removes Office from the Dojo
         """
         if old_space.name in self.rooms['offices']:
+            for occupants in old_space.occupants:
+                occupants.office = False
             self.delete_from_db(old_space)
             del self.rooms['offices'][old_space.name]
             return True
@@ -118,6 +120,8 @@ class Dojo():
         Removes LivingSpace from the Dojo
         """
         if old_space.name in self.rooms['livingspace']:
+            for occupants in old_space.occupants:
+                occupants.livingspace = False
             self.delete_from_db(old_space)
             del self.rooms['livingspace'][old_space.name]
             return True
@@ -129,7 +133,10 @@ class Dojo():
         Return True if succesfull else False
         """
         if old_fellow.id in self.person['fellow']:
-            self.delete_from_db(old_fellow)
+            rooms = self.get_person_room(old_fellow)
+            for room in rooms:
+                if room:
+                    room.occupants.remove(old_fellow)
             del self.person['fellow'][old_fellow.id]
             return True
         return False
@@ -140,6 +147,10 @@ class Dojo():
         Return True if succesfull else False
         """
         if old_staff.id in self.person['staff']:
+            rooms = self.get_person_room(old_staff)
+            for room in rooms:
+                if room:
+                    room.occupants.remove(old_staff)
             self.delete_from_db(old_staff)
             del self.person['staff'][old_staff.id]
             return True

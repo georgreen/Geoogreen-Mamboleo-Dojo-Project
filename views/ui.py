@@ -263,3 +263,27 @@ def reallocate_ui(status_message):
             status = 'Room Full'
         print_template(msg, name, room_type, curr_room, fail=True,
                        status=status)
+
+
+def person_information_ui(status_message):
+    print_message("*" * 40)
+    print_message('      User information')
+    print_message("*" * 40)
+    status = status_message["status"]
+    if status == 'Invalid type':
+        print_error("Use Staff or Fellow", status='Invalid type')
+    if status == 'Invalid ID':
+        print_error("Please enter Integers as id e.g 12.", status='Invalid Id')
+    if status == 'failed':
+        mesasge = status_message['message']
+        print_error("User not found", status=mesasge)
+        if status_message['people'][0]:
+            message = status_message['people'][0]
+            print_message(message, symbole=unicode_winkface,
+                          status="Did You Mean This?")
+    if status == 'ok':
+        users = status_message['people']
+        for user in users:
+            print_message(user)
+        if len(users) == 0:
+            print_warning("Sorry No users available")
