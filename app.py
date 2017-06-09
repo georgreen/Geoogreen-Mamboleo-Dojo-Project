@@ -541,6 +541,6 @@ if __name__ == '__main__':
         ui.print_exit()
     except SystemRestartInterrupt:
         ui.clear_console()
-        os.system('python3 admin.py')
+        os.system('python3 app.py')
     except Exception:
         ui.print_error("The Program stopped Abruptly. ERROR!")
