@@ -226,3 +226,16 @@ class TestAllocations(unittest.TestCase):
         self.livingspace.add_occupant(self.fellow1)
         dict_allocation = logic.dict_allocations(self.dojo)
         self.assertTrue(self.fellow1 in dict_allocation[self.livingspace.name])
+
+
+class TestLoadPeople(unittest.TestCase):
+    def setUp(self):
+        self.dojo = model.Dojo("Andela_kenya")
+
+    def test_load_people_file_not_found(self):
+        msg = logic.load_data_txt("non_existent_file.txt", self.dojo)[0]
+        self.assertTrue(msg['status'] == 'filenotfound')
+
+    def test_load_people_file_exist(self):
+        msg = logic.load_data_txt("file.txt", self.dojo)[0]
+        self.assertTrue(msg['status'] == 'ok')

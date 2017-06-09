@@ -16,6 +16,11 @@ An employee can either be a `staff` or a `fellow`. Staff can only be assigned of
 *	```print_Unallocated [filename]``` <br/>
 *   ```reallocate_person  id  new_room```<br/>
 *   ```load_people  file.txt``` <br/>
+*   ```save_state   database_name ```<br/>
+*   ```load_state   database_name```<br/>
+*   ```remove_person id ```<br/>
+*   ```remove_room room_name ```<br/>
+*   ```person_information [<type>] [<id>]```<br/>   
 
 
 ## Getting Started
@@ -48,7 +53,7 @@ Run the above command to install the app and required dependencies.
 From your terminal you can now run the application by using the following command:
 
 ```
-python3 admin.py
+python3 app.py
 ```
 
 A welcome screen will show as follows:
@@ -70,18 +75,28 @@ You can now interact with application by entering the commands displayed above. 
     *NOTE:* the livingspace option only applies to fellows and not staff.
 
 + You can reallocate a person using the command `reallocate_person <id> <newroom>`.
-    ![add person](assets/reallocate_person.png)
+    ![reallocate](assets/reallocate_person.png)
 
 + You can load people from a file by using the `load_people file.txt` command.
-    ![add person](assets/load_people.png)
+    ![load_people](assets/load_people.png)
 
 
 + You can also print out the allocated people and the unallocated using `print_[allocated|unallocated]` command, specifying the filename saves the allocations on the specified file.
-    ![add person](assets/print_unallocated.png)
+    ![print_unallocated](assets/print_unallocated.png)
 
-    ![add person](assets/print_allocations.png)
+    ![print_allocations](assets/print_allocations.png)
 
 + The command `print_room <room name>` print's room's occupants.
+    ![print_room](assets/print_room.png)
+
++ You can remove_person i.e fellow or staff `remove_person <ID>` remove user from system
+    ![remove_person](assets/remove_person.png)
+
++ You can display everyone or a specific user `person_information [<type>] [<id>]`
+    ![person_information](assets/person_information.png)
+
++ You can delete rooms from the system `remove_room <room_name>`
+    ![remove_room](assets/remove_room.png)
 
 + You could clear the screen if you wish by using the `clear` command.
 
@@ -107,7 +122,7 @@ To run tests run the command above : Require's nosetests
 
 
 ## Version
-version 3.0
+version 4.0
 
 
 ## Authors
@@ -124,5 +139,5 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE) f
 * [Stack Overflow](https://stackoverflow.com/)
 * [The Hitchhiker’s Guide to Python!](http://python-guide-pt-br.readthedocs.io/en/latest/)
 
-## Wish List
-* Database support
+## Future
+* Fork me!

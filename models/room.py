@@ -1,8 +1,8 @@
-from models.base_db import (Base, Boolean, Column, ForeignKey, Integer, String,
+# model a room
+from models.base_db import (Base, Column, ForeignKey, Integer, String,
                             relationship)
 
 
-# model a room
 class Room(Base):
     '''
     models abstract data type Room, not intended to be instanciated

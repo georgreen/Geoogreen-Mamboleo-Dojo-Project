@@ -7,6 +7,7 @@ class Person(Base):
     name = Column(String(256))
     office = Column(Boolean, default=False)
     type = Column(String(50))
+
     room_id = Column(Integer, ForeignKey('rooms.id'))
 
     __mapper_args__ = {
@@ -48,9 +49,6 @@ class Fellow(Person):
 
     def is_allocated_living(self):
         return self.livingspace
-
-    def remove_livingspace(self):
-        self.livingspace = False
 
     def __str__(self):
         choice = 'Y' if self.wants_living else 'N'
