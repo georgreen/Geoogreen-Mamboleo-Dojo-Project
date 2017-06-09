@@ -1,3 +1,4 @@
+import os
 import unittest
 
 from core import logic
@@ -239,3 +240,14 @@ class TestLoadPeople(unittest.TestCase):
     def test_load_people_file_exist(self):
         msg = logic.load_data_txt("file.txt", self.dojo)[0]
         self.assertTrue(msg['status'] == 'ok')
+
+
+class TestSavePeople(unittest.TestCase):
+    def setUp(self):
+        self.staff1 = model.Staff("saveSTaff1")
+        self.fellow1 = model.Fellow("saveFellow1")
+
+    def test_save_txt(self):
+        unallocated_list = [self.staff1, self.fellow1]
+        logic.save_txt("filename.txt", unallocated_list)
+        self.assertTrue(os.path.exists("filename.txt"))
