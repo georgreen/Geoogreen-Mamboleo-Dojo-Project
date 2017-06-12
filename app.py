@@ -26,10 +26,9 @@ class Admin(cmd.Cmd):
             try:
                 opt = docopt(fn.__doc__, args)
                 Admin.prompt = ui.dynamic_promt()
-
                 return fn(self, opt)
             except DocoptExit as e:
-                ui.print_error(e)
+                ui.print_error(e, status="Malformed Command")
                 Admin.prompt = ui.dynamic_promt(color='red',
                                                 symbole=ui.unicode_sadface)
         return get_args
@@ -203,6 +202,7 @@ class Admin(cmd.Cmd):
         Usage:
             load_people <file_name>
         """
+
         file_name = file_name['<file_name>']
         status_messages = logic.load_data_txt(file_name, self.dojo)
 
@@ -400,9 +400,28 @@ class Admin(cmd.Cmd):
         Usage:
             remove_person <ID>
         """
-        Admin.prompt = ui.dynamic_promt(color='red',
-                                        symbole=ui.unicode_sadface)
-        pass
+
+        user_id = person_information["<ID>"]
+        validated = None
+        try:
+            user_id = int(user_id)
+            validated = True
+        except Exception:
+            validated = False
+            ui.print_error("Invalid User Id, User Integers e.g 12")
+            Admin.prompt = ui.dynamic_promt(color='red',
+                                            symbole=ui.unicode_sadface)
+        if validated and self.dojo.get_person(user_id):
+            user = self.dojo.get_person(user_id)
+            if self.dojo.is_staff(user):
+                self.dojo.remove_staff(user)
+                ui.print_warning(user.__str__(), status="Staff was Removed")
+            else:
+                self.dojo.remove_fellow(user)
+                ui.print_warning(user.__str__(), status="Fellow was Removed")
+        elif validated:
+            ui.print_error("The User does not exist",
+                           status='Id does not Exist')
 
     @argument_parser
     def do_remove_room(self, room_name):
@@ -419,9 +438,21 @@ class Admin(cmd.Cmd):
         Usage:
             remove_room <room_name>
         """
-        Admin.prompt = ui.dynamic_promt(color='red',
-                                        symbole=ui.unicode_sadface)
-        pass
+
+        room_name = room_name["<room_name>"]
+        office = self.dojo.get_office(room_name)
+        livingspace = self.dojo.get_livingspace(room_name)
+        if office:
+            self.dojo.remove_office(office)
+            ui.print_warning("Office:" + office.name, status="Removed")
+        elif livingspace:
+            self.dojo.remove_livingspace(livingspace)
+            ui.print_warning("Livingspace:" + livingspace.name,
+                             status="Removed")
+        else:
+            ui.print_error("The room does not exist", status='Room Not Found')
+            Admin.prompt = ui.dynamic_promt(color='red',
+                                            symbole=ui.unicode_sadface)
 
     @argument_parser
     def do_person_information(self, person_information):
@@ -433,16 +464,63 @@ class Admin(cmd.Cmd):
             None: The return value.
 
         Example:
-            >>> person_information 1
-            >>> person_information fellows
+            >>> person_information
+            >>> person_information fellow
             >>> person_information staff
+            >>> person_information fellow 23
+            >>> person_information staff  34
 
         Usage:
-            person_information [<id>] [<fellows>] [<staff>]
-        """
-        Admin.prompt = ui.dynamic_promt(color='red',
-                                        symbole=ui.unicode_sadface)
-        pass
+            person_information [<type>] [<id>]
+         """
+        status_message = {"status": None, "message": None}
+        user_id = person_information["<id>"]
+        user_type = person_information["<type>"]
+
+        staff = list(self.dojo.staff)
+        fellow = list(self.dojo.fellow)
+        people = staff + fellow
+        # validate user input
+        validated = None
+        if user_id:
+            try:
+                user_id = int(user_id)
+                validated = True
+            except Exception:
+                validated = False
+            status_message["validated"] = validated
+
+        if user_type and user_type.lower() in ["staff", "fellow"]:
+            user_type = user_type.lower()
+            if user_id and user_type and validated:
+                people = self.dojo.get_person(user_id)
+                status_message["status"] = "failed"
+                if not people:
+                    status_message["message"] = "User not found"
+                elif self.dojo.is_fellow(people) and user_type != "fellow":
+                    status_message["message"] = "User not staff"
+                elif self.dojo.is_staff(people) and user_type != "staff":
+                    status_message["message"] = "User not fellow"
+                else:
+                    status_message["status"] = "ok"
+                people = [people]
+            elif user_type and validated is None:
+                status_message["status"] = "ok"
+                people = fellow
+                if user_type == "staff":
+                    people = staff
+            else:
+                status_message["status"] = "Invalid ID"
+        elif user_type:
+            Admin.prompt = ui.dynamic_promt(color='red',
+                                            symbole=ui.unicode_sadface)
+            people = None
+            status_message["status"] = "Invalid type"
+        else:
+            status_message["status"] = "ok"
+        status_message["people"] = people
+
+        ui.person_information_ui(status_message)
 
 
 class SystemRestartInterrupt(Exception):
@@ -463,6 +541,6 @@ if __name__ == '__main__':
         ui.print_exit()
     except SystemRestartInterrupt:
         ui.clear_console()
-        os.system('python3 admin.py')
+        os.system('python3 app.py')
     except Exception:
         ui.print_error("The Program stopped Abruptly. ERROR!")
