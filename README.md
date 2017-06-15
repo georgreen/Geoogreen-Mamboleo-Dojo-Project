@@ -1,3 +1,4 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/4e2474f0bdd34944825080e43e14cf56)](https://www.codacy.com/app/georgreen/Geoogreen-Mamboleo-Dojo-Project?utm_source=github.com&utm_medium=referral&utm_content=georgreen/Geoogreen-Mamboleo-Dojo-Project&utm_campaign=badger)
 [![Build Status](https://travis-ci.org/georgreen/Geoogreen-Mamboleo-Dojo-Project.svg?branch=master)](https://travis-ci.org/georgreen/Geoogreen-Mamboleo-Dojo-Project) [![Coverage Status](https://coveralls.io/repos/github/georgreen/Geoogreen-Mamboleo-Dojo-Project/badge.svg?branch=master)](https://coveralls.io/github/georgreen/Geoogreen-Mamboleo-Dojo-Project?branch=master)  [![Code Issues](https://www.quantifiedcode.com/api/v1/project/d4e4bbeca60e46fca5ced46934c26d4c/badge.svg)](https://www.quantifiedcode.com/app/project/d4e4bbeca60e46fca5ced46934c26d4c)
 
 
